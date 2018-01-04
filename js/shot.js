@@ -47,6 +47,9 @@ function shot_enter() {
             s.bullet_type = st.bullet_type;
             s.bullet_color = st.bullet_color;
             console.log("Entered shot, type = " + s.type + ", bullet_type = " + s.bullet_type + ", stage_count = " + stage_count);
+            if (shot_bullet[s.type].title !== null) {
+                console.log("%c%s", "color: #3399ff", shot_bullet[s.type].title)
+            }
         }
     });
 }
@@ -55,7 +58,7 @@ function shot_calc(s) {
     total_bullet = 0;
     shot.forEach(s => {
         if (s.flag == true) {
-            shot_bullet[s.type](s);
+            shot_bullet[s.type].shot(s);
             let sum_bullet = 0;
 
             // Calculate bullets.

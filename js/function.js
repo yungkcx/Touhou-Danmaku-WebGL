@@ -1,3 +1,19 @@
+function create_danmaku(title_or_func, shot_func) {
+    let obj = {
+        title: title_or_func,
+        shot: shot_func
+    };
+    if (arguments.length == 1 && typeof title_or_func == 'function') {
+        obj.title = null;
+        obj.shot = title_or_func;
+    } else if (arguments.length == 2 && typeof title_or_func == 'string') {
+        return obj;
+    } else {
+        console.error("Error: wrong type of the arguments");
+        return null;
+    }
+}
+
 function add_danmaku(start_time, shot_type, bullet_type, bullet_color) {
     return {
         start_time: start_time,

@@ -37,7 +37,7 @@ function gameloop(now) {
     boss_calc();
     player_calc();
     if (total_bullet > pre_total_bullet) {
-        console.log("total bullet =", total_bullet);
+        // console.log("total bullet =", total_bullet);
         pre_total_bullet = total_bullet;
     }
 

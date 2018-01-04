@@ -1,5 +1,5 @@
 let shot_bullet = [
-    function shot_bullet000(s) {
+    create_danmaku(function f000(s) {
         if (s.count == 0) {
             let b = get_bullet(s, s.bullet_type, s.bullet_color); //new Bullet(s.bullet_type, s.bullet_color);
             if (b == null) {
@@ -11,8 +11,8 @@ let shot_bullet = [
             b.y = boss.y;
             se_bullet[0].flag = true;
         }
-    },
-    function shot_bullet001(s) {
+    }),
+    create_danmaku(function f001(s) {
         let t = s.count;
         if (t >= 0 && t <= 150 && t % 10 == 0) {
             for (let i = 0; i < 20; i++) {
@@ -37,8 +37,8 @@ let shot_bullet = [
                 se_bullet[0].flag = true;
             }
         }
-    },
-    function shot_bullet002(s) {
+    }),
+    create_danmaku(function f002(s) {
         let t = s.count;
         if (t >= 0 && t < 120 && t % 20 == 0) {
             let angle = bossatan();
@@ -53,8 +53,8 @@ let shot_bullet = [
                 }
             }
         }
-    },
-    function shot_bullet003(s) {
+    }),
+    create_danmaku(function f003(s) {
         let t = s.count;
         if (t >= 0 && t < 120 && t % 2 == 0) {
             let b = get_bullet(s, s.bullet_type, s.bullet_color);
@@ -66,8 +66,8 @@ let shot_bullet = [
                 se_bullet[0].flag = true;
             }
         }
-    },
-    function shot_bullet004(s) {
+    }),
+    create_danmaku(function f004(s) {
         let t = s.count;
         if (t >= 0 && t < 120 && t % 2 == 0) {
             let b = get_bullet(s, s.bullet_type, s.bullet_color);
@@ -86,8 +86,8 @@ let shot_bullet = [
                 }
             }
         });
-    },
-    function shot_bullet005(s) {
+    }),
+    create_danmaku(function f005(s) {
         let t = s.count % 120;
         let t2 = s.count;
         if ((t2 >= 0 && t2 < 240) && (t < 60 && t % 10 == 0)) {
@@ -103,8 +103,8 @@ let shot_bullet = [
                 }
             }
         }
-    },
-    function shot_bullet006(s) {
+    }),
+    create_danmaku(function f006(s) {
         // 沉默的圣奈
         const TM001 = 60;
         let t = s.count % TM001,
@@ -150,9 +150,8 @@ let shot_bullet = [
         if (t == TM001 - 1) {
             this.cnum++;
         }
-    },
-    function shot_bullet007(s) {
-        // 冻符「Perfect Freeze」
+    }),
+    create_danmaku("冻符「Perfect Freeze」", function f007(s) {
         const TM1 = 650;
         let t = s.count % TM1;
 
@@ -212,9 +211,8 @@ let shot_bullet = [
                 }
             }
         });
-    },
-    function shot_bullet008(s) {
-        // 禁忌「恋之迷宫」
+    }),
+    create_danmaku("禁忌「恋之迷宫」", function f008(s) {
         const TM001 = 600,
             DF001 = 20;
         let t = s.count % TM001,
@@ -269,5 +267,5 @@ let shot_bullet = [
         if (t == TM001 - 1) {
             cnum++;
         }
-    },
+    }),
 ];

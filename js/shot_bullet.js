@@ -104,10 +104,9 @@ let shot_bullet = [
             }
         }
     }),
-    create_danmaku(function f006(s) {
-        // 沉默的圣奈
-        const TM001 = 60;
-        let t = s.count % TM001,
+    create_danmaku("「沉默的圣奈」", function f006(s) {
+        const TM1 = 60;
+        let t = s.count % TM1,
             t2 = s.count;
         let angle;
         this.cnum = this.cnum || 0;
@@ -121,10 +120,10 @@ let shot_bullet = [
                 move_boss(40, 30, FMX - 40, 120, 60, 60);
             }
         }
-        if (t == TM001 / 2 - 1) {
+        if (t == TM1 / 2 - 1) {
             s.base_angle[0] += PI2 / 20 / 2;
         }
-        if (t % (TM001 / 10) == 0) {
+        if (t % (TM1 / 10) == 0) {
             angle = bossatan();
             for (let i = 0; i < 20; i++) {
                 let b = get_bullet(s, 8, 7);
@@ -147,7 +146,7 @@ let shot_bullet = [
                 se_bullet[0].flag = true;
             }
         }
-        if (t == TM001 - 1) {
+        if (t == TM1 - 1) {
             this.cnum++;
         }
     }),
@@ -156,7 +155,7 @@ let shot_bullet = [
         let t = s.count % TM1;
 
         if (t == 0 || t == 210) {
-            move_boss(40, 50, FMX - 40, 150, 100, 80);
+            move_boss(50, 65, FMX - 50, 170, 120, 80);
         }
         if (t < 180) {
             for (let i = 0; i < 4; i++) {
@@ -213,46 +212,50 @@ let shot_bullet = [
         });
     }),
     create_danmaku("禁忌「恋之迷宫」", function f008(s) {
-        const TM001 = 600,
-            DF001 = 20;
-        let t = s.count % TM001,
+        const TM1 = 600,
+            DF1 = 20;
+        let t = s.count % TM1,
             t2 = s.count;
-        let tcnt, cnt, cnum;
+        let left_or_right = this.cnum % 2 ? -1 : 1;
+        this.tcnt = this.tcnt | 0;
+        this.cnt = this.cnt | 0;
+        this.cnum = this.cnum | 0;
+
         if (t2 == 0) {
             input_boss_phy(FMX / 2, FMY / 2, 50);
-            cnum = 0;
+            this.cnum = 0;
         }
         if (t == 0) {
             s.base_angle[0] = bossatan();
-            cnt = 0;
-            tcnt = 2;
+            this.cnt = 0;
+            this.tcnt = 2;
         }
-        if (t < 540 && t % 3) {
-            angle = bossatan();
-            if (tcnt - 2 == cnt || tcnt - 1 == cnt) {
-                if (tcnt - 1 == cnt) {
-                    s.base_angle[1] = s.base_angle[0] + PI2 / DF001 * cnt * (cnum ? -1 : 1) - PI2 / (DF001 * 6) * 3;
-                    tcnt += DF001 - 1;
+        if (t < 540 && t % 3 != 0) {
+            let angle = bossatan();
+            if (this.tcnt - 2 == this.cnt || this.tcnt - 1 == this.cnt) {
+                if (this.tcnt - 1 == this.cnt) {
+                    s.base_angle[1] = s.base_angle[0] + PI2 / DF1 * this.cnt * left_or_right - PI2 / (DF1 * 6) * 3;
+                    this.tcnt += DF1 - 2;
                 }
             } else {
                 for (let i = 0; i < 6; i++) {
-                    let b = get_bullet(s, 8, cnum ? 1 : 4);
+                    let b = get_bullet(s, 8, this.cnum % 2 ? 1 : 4);
                     if (b != null) {
                         b.x = boss.x;
                         b.y = boss.y;
-                        b.angle = s.base_angle[0] + PI2 / DF001 * cnt * (cnum ? -1 : 1) + PI2 / (DF001 * 6) * i * (cnum ? -1 : 1);
+                        b.angle = s.base_angle[0] + PI2 / DF1 * this.cnt * left_or_right + PI2 / (DF1 * 6) * i * left_or_right;
                         b.speed = 2;
                         se_bullet[0].flag = true;
                     }
                 }
             }
-            cnt++;
+            this.cnt++;
         }
         if (40 < t && t < 540 && t % 30 == 0) {
             for (let j = 0; j < 3; j++) {
                 let angle = s.base_angle[1] - PI2 / 36 * 4;
                 for (let i = 0; i < 27; i++) {
-                    let b = get_bullet(s, 7, cnum ? 6 : 0);
+                    let b = get_bullet(s, 7, this.cnum % 2 ? 6 : 0);
                     if (b != null) {
                         b.x = boss.x;
                         b.y = boss.y;
@@ -264,8 +267,88 @@ let shot_bullet = [
                 }
             }
         }
-        if (t == TM001 - 1) {
-            cnum++;
+        if (t == TM1 - 1) {
+            this.cnum++;
+        }
+    }),
+    create_danmaku("土著神「小小青蛙不输风雨」", function f009(s) {
+        const TM = 200;
+        let t = s.count % TM,
+            t2 = s.count;
+        this.tm = this.tm | 0;
+
+        if (t == 0) {
+            this.tm = 190 + range(30);
+        }
+        let angle = PI * 1.5 + PI / 6 * Math.sin(PI2 / this.tm * t2);
+        if (t2 % 4 == 0) {
+            for (let i = 0; i < 8; i++) {
+                let b = get_bullet(s, 4, 0);
+                if (b != null) {
+                    b.state = 0;
+                    b.x = boss.x;
+                    b.y = boss.y;
+                    b.angle = 0;
+                    b.vx = Math.cos(angle - PI / 8 * 4 + PI / 8 * i + PI / 16) * 3;
+                    b.vy = Math.sin(angle - PI / 8 * 4 + PI / 8 * i + PI / 16) * 3;
+                }
+            }
+            se_bullet[0].flag = true;
+        }
+        if (t % 1 == 0 && t2 > 80) {
+            let num = 1;
+            if (t % 2 != 0) {
+                num = 2;
+            }
+            for (let i = 0; i < num; i++) {
+                let b = get_bullet(s, 8, 1);
+                if (b != null) {
+                    let angle = PI * 1.5 - PI / 2 + PI / 12 * (t2 % 13) + range(PI / 15);
+                    b.x = boss.x;
+                    b.y = boss.y;
+                    b.angle = 0;
+                    b.state = 1;
+                    b.vx = Math.cos(angle) * 1.4 * 1.2;
+                    b.vy = Math.sin(angle) * 1.4;
+                }
+            }
+        }
+        s.bullet.forEach(b => {
+            if (b.flag == true) {
+                if (b.state == 0) {
+                    if (b.count < 150) {
+                        b.vy += 0.03;
+                    }
+                    b.x += b.vx;
+                    b.y += b.vy;
+                } else if (b.state == 1) {
+                    if (b.count < 160) {
+                        b.vy += 0.03;
+                    }
+                    b.x += b.vx;
+                    b.y += b.vy;
+                    b.angle = Math.atan2(b.vy, b.vx);
+                }
+            }
+        });
+    }),
+    create_danmaku("「反魂蝶 -八分咲-」", function f010(s) {
+        const TM = 420;
+        const DIST = 60;
+        let t = s.count % TM,
+            t2 = s.count;
+        this.num = this.num | 0;
+        if (t2 == 0) {
+            num = 4;
+        }
+        // TODO: lazer
+        if (t == 50) {
+            let angle = range(PI);
+            for (let i = 0; i < 2; i++) {
+                for (let j = 0; j < 3; j++) {
+                    for (let k = 0; k < 3; k++) {}
+                }
+            }
         }
     }),
 ];

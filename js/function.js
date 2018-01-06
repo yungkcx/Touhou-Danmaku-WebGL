@@ -6,6 +6,7 @@ function create_danmaku(title_or_func, shot_func) {
     if (arguments.length == 1 && typeof title_or_func == 'function') {
         obj.title = null;
         obj.shot = title_or_func;
+        return obj;
     } else if (arguments.length == 2 && typeof title_or_func == 'string') {
         return obj;
     } else {

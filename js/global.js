@@ -1,7 +1,9 @@
 const FMX = 500; // FIELD_MAX_X
 const FMY = 550; // FIELD_MAX_Y
+// const FMX = 384;
+// const FMY = 448;
 const MAX_SHOT = 10;
-const MAX_SHOT_BULLET = 1000;
+const MAX_SHOT_BULLET = 2000;
 const BOSS_POS_X = FMX / 2;
 const BOSS_POS_Y = FMY * 1 / 4;
 

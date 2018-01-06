@@ -5,6 +5,7 @@ function SoundEffect(audio) {
 
 function Bullet() {
     this.flag = false;
+    this.state = 0;
     this.type = 0;
     this.color = 0;
     this.count = 0;
@@ -13,6 +14,8 @@ function Bullet() {
     this.kaiten = false;
     this.x = 0;
     this.y = 0;
+    this.vx = 0;
+    this.vy = 0;
     this.till = 0; // Time of existence.
     this.angle = 0;
 }
@@ -21,6 +24,7 @@ function Shot() {
     this.flag = false;
     this.type = 0;
     this.count = 0;
+    this.issc = false;
     this.state = 0;
     this.base_angle = [];
     this.bullet_type = 0;

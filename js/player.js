@@ -1,5 +1,5 @@
 function player_calc() {
-    player.img = Math.floor((player.count % 64) / 8);
+    player.img = Math.floor((player.count % 64) / 8); // Switch every 8 frames.
     player_move();
     player.count++;
 }
@@ -20,9 +20,9 @@ function player_move() {
         player.vm = 0;
     } else if (iskeypressed(KEY_LEFT) || iskeypressed(KEY_RIGHT)) {
         let coef = iskeypressed(KEY_LEFT) ? 1 : 2;
-        if (player.vm < 4) {
-            player.img = player.vm + 8 * coef;
-        } else {
+        if (player.vm < 8) { // Switch every 2 frames.
+            player.img = Math.floor(player.vm / 2) + 8 * coef;
+        } else { // Switch every 8 frames.
             player.img = Math.floor((player.vm % 32) / 8) + 4 + 8 * coef;
         }
         player.vm++;

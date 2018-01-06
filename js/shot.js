@@ -48,6 +48,7 @@ function shot_enter() {
             s.bullet_color = st.bullet_color;
             console.log("Entered shot, type = " + s.type + ", bullet_type = " + s.bullet_type + ", stage_count = " + stage_count);
             if (shot_bullet[s.type].title !== null) {
+                s.issc = true;
                 console.log("%c%s", "color: #3399ff", shot_bullet[s.type].title)
             }
         }
@@ -70,7 +71,7 @@ function shot_calc(s) {
                     b.count++;
                     // Judge if the bullet is out of the screen.
                     if (b.x < -50 || b.x > FMX + 50 || b.y < -50 || b.y > FMY + 50) {
-                        if (b.till < b.count) { // And is expired.
+                        if (b.till <= b.count) { // And is expired.
                             b.flag = false; // Delete.
                             sum_bullet--;
                         }
@@ -79,7 +80,7 @@ function shot_calc(s) {
             });
 
             s.count++;
-            if (sum_bullet == 0) { // If there is no bullet in the shot.
+            if (sum_bullet == 0 && s.issc == false) { // If there is no bullet and isn't spell card.
                 s.flag = false; // Delete.
                 input_boss_phy(BOSS_POS_X, BOSS_POS_Y, 60); // Make the boss return.
                 console.log("Removed shot, type =", s.type);

@@ -52,7 +52,11 @@ function get_laser(s, type, color) {
             s.laser[i].count = 0;
             s.laser[i].type = type;
             s.laser[i].color = color;
-            // TODO: other attributes.
+            s.laser[i].width = 0;
+            s.laser[i].height = 0;
+            s.laser[i].startX = 0;
+            s.laser[i].startY = 0;
+            s.laser[i].angle = 0;
             return s.laser[i];
         }
     }

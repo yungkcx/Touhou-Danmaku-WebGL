@@ -47,14 +47,12 @@ function graph_shot() {
             }
         });
     });
-    // gl.blendFunc(gl.SRC_ALPHA, gl.ON_MINUS_SRC_ALPHA);
-    // gl.blendColor(0, 0, 0, 0);
 }
 
 function graph_board() {
     drawline(0, 0, FMX, 0);
     drawline(0, 0, 0, FMY);
-    drawline(FMX, 0, FMX, FMY);
+    drawline(FMX - 1, 0, FMX - 1, FMY);
     drawline(0, FMY, FMX, FMY);
 }
 

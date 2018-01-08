@@ -341,7 +341,6 @@ let shot_bullet = [
         if (t2 == 0) {
             this.num = 4;
         }
-        // TODO: laser
         if (t == 0) {
             for (let j = 0; j < 2; j++) {
                 for (let i = 0; i < this.num; i++) {

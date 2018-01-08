@@ -44,12 +44,17 @@ function load() {
     img_bullet[5] = load_img("data/img/bullet/b5.png", 3, 1, 14, 16);
     img_bullet[9] = load_img("data/img/bullet/b9.png", 3, 1, 13, 19);
     img_bullet[8] = load_img("data/img/bullet/b8.png", 10, 1, 12, 18);
+    img_bullet[10] = load_img("data/img/bullet/b10.png", 8, 1, 8, 8);
     img_bullet[2] = load_img("data/img/bullet/b2.png", 10, 1, 5, 120);
+    img_bullet[11] = load_img("data/img/bullet/b11.png", 8, 1, 35, 32);
     // Player.
     img_player[0] = load_img("data/img/player/pl00.png", 8, 3, 32, 48);
     img_player[1] = load_img("data/img/player/pl01.png", 8, 3, 32, 48);
     // Boss.
     img_boss[4] = load_img("data/img/boss/boss4.png", 4, 3, 64, 64);
+    // Laser.
+    img_laser[0] = load_img("data/img/bullet/l0.png", 2, 1, 30, 460);
+    img_laser_moto[0] = load_img("data/img/bullet/l0_moto.png", 2, 1, 70, 70);
 
     addedloading = true;
     return {
@@ -110,7 +115,10 @@ function init() {
             shot[i] = new Shot(0);
             shot[i].bullet = new Array(MAX_SHOT_BULLET);
             for (let j = 0; j < MAX_SHOT_BULLET; j++) {
-                shot[i].bullet[j] = new Bullet(0, 0);
+                shot[i].bullet[j] = new Bullet();
+            }
+            for (let j = 0; j < MAX_SHOT_LASER; j++) {
+                shot[i].laser[j] = new Laser();
             }
         }
         donefunc();

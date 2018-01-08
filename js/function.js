@@ -43,6 +43,14 @@ function drawImage(img, x, y, angle) {
     gl.restore();
 }
 
+function drawLaser(img, startX, startY, width, height, angle) {
+    gl.save();
+    gl.translate(startY, startY);
+    gl.rotate(angle);
+    gl.drawImage(img, Math.floor(startX + width / 2), 0, Math.floor(width), Math.floor(height));
+    gl.restore();
+}
+
 function se_play() {
     se_bullet.forEach(se => {
         if (se.flag == true) {

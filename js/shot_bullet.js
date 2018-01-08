@@ -345,10 +345,88 @@ let shot_bullet = [
         if (t == 50) {
             let angle = range(PI);
             for (let i = 0; i < 2; i++) {
-                for (let j = 0; j < 3; j++) {
-                    for (let k = 0; k < 3; k++) {}
+                for (let k = 0; k < 3; k++) {
+                    for (let j = 0; j < 3; j++) {
+                        for (let m = 0; m < 40; m++) {
+                            let b = get_bullet(s, 11, i);
+                            if (b != null) {
+                                b.x = boss.x;
+                                b.y = boss.y;
+                                b.angle = angle + PI2 / 40 * m + PI2 / 80 * i;
+                                b.speed = 1.8 - 0.2 * j + 0.1 * i;
+                                b.state = k;
+                            }
+                            se_bullet[0].flag = true;
+                        }
+                    }
                 }
             }
+        }
+        if (t >= 170 && t < 310 && (t - 170) % 35 == 0) {
+            let div = ((t - 170) % 70 == 0) ? -1 : 1;
+            let angle = range(PI);
+            for (let i = 0; i < 2; i++) {
+                for (let k = 0; k < 3; k++) {
+                    for (let m = 0; m < 40; m++) {
+                        let b = get_bullet(s, 11, 2);
+                        if (b != null) {
+                            b.x = boss.x;
+                            b.y = boss.y;
+                            b.angle = angle + PI2 / 40 * m;
+                            b.speed = 2 - 0.3 * i;
+                            b.state = 10 + k;
+                            b.base_angle[0] = PI / 400 * div;
+                        }
+                    }
+                }
+                se_bullet[0].flag = true;
+            }
+        }
+        if (t == 360) {
+            let angle = range(PI);
+            for (let k = 0; k < 3; k++) {
+                for (let m = 0; m < 40; m++) {
+                    let b = get_bullet(s, 0, 1);
+                    if (b != null) {
+                        b.x = boss.x;
+                        b.y = boss.y;
+                        b.angle = angle + PI2 / 40 * m;
+                        b.speed = 1.8;
+                        b.state = 20 + k;
+                    }
+                }
+            }
+            se_bullet[0].flag = true;
+        }
+        s.bullet.forEach(b => {
+            if (b.flag == true) {
+                let count = b.count;
+                let state = b.state;
+                switch (state % 10) {
+                    case 0:
+                        if (count > 90 && count <= 100) {
+                            b.speed -= b.speed / 220;
+                        }
+                        break;
+                    case 1:
+                        if (count > 50) {
+                            b.speed += b.speed / 45;
+                        }
+                        break;
+                    case 2:
+                        if (count > 65) {
+                            b.speed += b.speed / 90;
+                        }
+                        break;
+                }
+                if (10 <= state && state <= 12 && count > 15 && count <= 80) {
+                    b.angle += b.base_angle[0];
+                }
+            }
+        });
+        // TODO: lazer
+        if (t == TM - 1) {
+            this.num++;
         }
     }),
 ];

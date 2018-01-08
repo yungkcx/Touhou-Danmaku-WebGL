@@ -10,7 +10,7 @@ function get_shot(type) {
             shot[i].type = type;
             return shot[i];
         }
-    };
+    }
     return null;
 }
 
@@ -33,9 +33,31 @@ function get_bullet(s, type, color) {
             s.bullet[i].kaiten = false;
             return s.bullet[i];
         }
-    };
+    }
     return null;
 };
+
+function get_laser(s, type, color) {
+    if (type < 0 || type > img_laser.length) {
+        console.error("Error: invalid laser type");
+        return null;
+    }
+    if (color < 0 || color >= img_laser[type].length) {
+        console.error("Error: invalid laser color");
+        return null;
+    }
+    for (let i = 0; i < s.laser.length; i++) {
+        if (s.laser[i].flag == false) {
+            s.laser[i].flag == true;
+            s.laser[i].count = true;
+            s.laser[i].type = type;
+            s.laser[i].color = color;
+            // TODO: other attributes.
+            return s.laser[i];
+        }
+    }
+    return null;
+}
 
 function shot_enter() {
     story.forEach(st => {

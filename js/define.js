@@ -18,6 +18,19 @@ function Bullet() {
     this.vy = 0;
     this.till = 0; // Time of existence.
     this.angle = 0;
+    this.base_angle = new Array(2);
+}
+
+function Laser() {
+    this.flag = false;
+    this.count = 0;
+    this.type = 0;
+    this.color = 0;
+    this.startX = 0;
+    this.startY = 0;
+    this.width = 0;
+    this.height = 0;
+    this.angle = 0;
 }
 
 function Shot() {
@@ -26,10 +39,11 @@ function Shot() {
     this.count = 0;
     this.issc = false;
     this.state = 0;
-    this.base_angle = [];
+    this.base_angle = new Array(2);
     this.bullet_type = 0;
     this.bullet_color = 0;
     this.bullet = [];
+    this.laser = [];
 }
 
 // For physical calculation of the boss.

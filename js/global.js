@@ -4,6 +4,7 @@ const FMY = 550; // FIELD_MAX_Y
 // const FMY = 448;
 const MAX_SHOT = 10;
 const MAX_SHOT_BULLET = 2000;
+const MAX_SHOT_LASER = 20;
 const BOSS_POS_X = FMX / 2;
 const BOSS_POS_Y = FMY * 1 / 4;
 
@@ -21,6 +22,8 @@ let img_boss = [];
 let img_player = [];
 let se_bullet = [];
 let shot = [];
+let img_laser = [];
+let img_laser_moto = [];
 let stage_count = 0; // FPS count.
 let last_count = 0;
 let last_time = 0;

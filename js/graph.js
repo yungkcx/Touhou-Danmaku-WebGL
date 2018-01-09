@@ -24,15 +24,22 @@ function graph_bullet(s, layer) {
 }
 
 function graph_laser(s) {
-    // TODO: draw laser.
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
     s.laser.forEach(la => {
         if (la.flag == true) {
             drawLaser(img_laser[la.type][la.color], la.startX, la.startY, la.width, la.height, la.angle - PI / 2);
+            drawImage(img_laser_moto[la.type][la.color], la.startX, la.startY, 0);
         }
     });
+    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 }
 
 function graph_shot() {
+    shot.forEach(s => {
+        if (s.flag == true) {
+            graph_laser(s);
+        }
+    });
     graph_bullet_layer.forEach(layer => {
         shot.forEach(s => {
             if (s.flag == true) {
@@ -40,11 +47,8 @@ function graph_shot() {
             }
         });
     });
-    shot.forEach(s => {
-        if (s.flag == true) {
-            graph_laser(s);
-        }
-    });
+    // gl.blendFunc(gl.SRC_ALPHA, gl.ON_MINUS_SRC_ALPHA);
+    // gl.blendColor(0, 0, 0, 0);
 }
 
 function graph_board() {

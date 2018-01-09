@@ -45,9 +45,9 @@ function drawImage(img, x, y, angle) {
 
 function drawLaser(img, startX, startY, width, height, angle) {
     gl.save();
-    gl.translate(startY, startY);
+    gl.translate(startX, startY);
     gl.rotate(angle);
-    gl.drawImage(img, Math.floor(startX + width / 2), 0, Math.floor(width), Math.floor(height));
+    gl.drawImage(img, -width / 2, 0, Math.floor(width), Math.floor(height));
     gl.restore();
 }
 

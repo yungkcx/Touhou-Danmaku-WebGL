@@ -339,9 +339,34 @@ let shot_bullet = [
             t2 = s.count;
         this.num = this.num | 0;
         if (t2 == 0) {
-            num = 4;
+            this.num = 4;
         }
-        // TODO: lazer
+        // TODO: laser
+        if (t == 0) {
+            for (let j = 0; j < 2; j++) {
+                for (let i = 0; i < this.num; i++) {
+                    let plmn = (j ? -1 : 1);
+                    let la = get_laser(s, 0, j);
+                    if (la != null) {
+                        la.angle = PI2 / this.num * i + PI2 / (this.num * 2) * j + PI2 / (this.num * 4) * ((this.num + 1) % 2);
+                        la.startX = boss.x + Math.cos(la.angle) * DIST;
+                        la.startY = boss.y + Math.sin(la.angle) * DIST;
+                        la.width = 2;
+                        la.height = 440;
+                        la.state = j;
+                        la.lphy.conv_flag = true;
+                        la.lphy.conv_base_x = boss.x;
+                        la.lphy.conv_base_y = boss.y;
+                        la.lphy.conv_x = la.startX;
+                        la.lphy.conv_y = la.startY;
+                        la.lphy.angle = PI / this.num * plmn;
+                        la.lphy.base_angle = la.angle;
+                        la.lphy.time = 80;
+                    }
+                }
+            }
+            se_bullet[1].flag = true;
+        }
         if (t == 50) {
             let angle = range(PI);
             for (let i = 0; i < 2; i++) {
@@ -424,9 +449,27 @@ let shot_bullet = [
                 }
             }
         });
-        // TODO: lazer
+        s.laser.forEach(la => {
+            if (la.flag == true) {
+                let count = la.count;
+                let state = la.state;
+                if (state == 0 || state == 1) {
+                    if (count == 80) {
+                        la.width = 20;
+                    } else if (count >= 260 && count <= 290) {
+                        la.width = 10 * (30 - (count - 260)) / 30;
+                        if (count == 290) {
+                            la.flag = false;
+                        }
+                    }
+                }
+            }
+        });
         if (t == TM - 1) {
             this.num++;
+            if (this.num > 8) {
+                this.num = 4;
+            }
         }
     }),
 ];

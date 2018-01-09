@@ -34,6 +34,7 @@ function load() {
 
     // Sound effect.
     se_bullet[0] = new SoundEffect(new Audio("data/se/enemy_shot.wav"));
+    se_bullet[1] = new SoundEffect(new Audio("data/se/laser.wav"));
     // Bullet.
     img_bullet[0] = load_img("data/img/bullet/b0.png", 5, 1, 76, 76);
     img_bullet[3] = load_img("data/img/bullet/b3.png", 5, 1, 19, 34);

@@ -21,6 +21,17 @@ function Bullet() {
     this.base_angle = new Array(2);
 }
 
+function LaserPhysic() {
+    this.conv_flag = false;
+    this.conv_base_x = 0;
+    this.conv_base_y = 0;
+    this.conv_x = 0;
+    this.conv_y = 0;
+    this.angle = 0;
+    this.base_angle = 0;
+    this.time = 0;
+}
+
 function Laser() {
     this.flag = false;
     this.count = 0;
@@ -31,6 +42,7 @@ function Laser() {
     this.width = 0;
     this.height = 0;
     this.angle = 0;
+    this.lphy = new LaserPhysic();
 }
 
 function Shot() {
@@ -47,7 +59,7 @@ function Shot() {
 }
 
 // For physical calculation of the boss.
-function Boss_phy() {
+function BossPhysic() {
     this.flag = false;
     this.count = 0;
     this.time = 0;
@@ -70,7 +82,7 @@ function Boss(id) {
     this.x = 0;
     this.y = 0;
     this.speed = 0;
-    this.phy = new Boss_phy();
+    this.phy = new BossPhysic();
 }
 
 function Player(id) {

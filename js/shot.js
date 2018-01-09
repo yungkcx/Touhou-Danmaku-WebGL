@@ -48,8 +48,8 @@ function get_laser(s, type, color) {
     }
     for (let i = 0; i < s.laser.length; i++) {
         if (s.laser[i].flag == false) {
-            s.laser[i].flag == true;
-            s.laser[i].count = true;
+            s.laser[i].flag = true;
+            s.laser[i].count = 0;
             s.laser[i].type = type;
             s.laser[i].color = color;
             // TODO: other attributes.
@@ -73,6 +73,35 @@ function shot_enter() {
                 s.issc = true;
                 console.log("%c%s", "color: #3399ff", shot_bullet[s.type].title)
             }
+        }
+    });
+}
+
+function laser_calc(s) {
+    s.laser.forEach(la => {
+        if (la.flag == true) {
+            let ymax = la.lphy.angle;
+            let ty = la.lphy.time;
+            let t = la.count;
+            let delt = (2 * ymax * t / ty - ymax * t * t / (ty * ty));
+            if (la.lphy.time != 0) {
+                la.angle = la.lphy.base_angle + delt;
+            }
+            if (la.lphy.conv_flag == true) {
+                ((x0, y0, mx, my, angle) => {
+                    let ox = x0 - mx,
+                        oy = y0 - my;
+                    la.startX = ox * Math.cos(angle) + oy * Math.sin(angle);
+                    la.startY = -ox * Math.sin(angle) + oy * Math.cos(angle);
+                    la.startX += mx;
+                    la.startY += my;
+                })(la.lphy.conv_x, la.lphy.conv_y, la.lphy.conv_base_x, la.lphy.conv_base_y, -delt);
+            }
+            if (la.count > la.lphy.time) {
+                la.lphy.time = 0;
+                la.lphy.conv_flag = false;
+            }
+            la.count++;
         }
     });
 }
@@ -108,6 +137,9 @@ function shot_calc(s) {
                 console.log("Removed shot, type =", s.type);
             }
             total_bullet += sum_bullet;
+
+            // Calculate laser of the shot.
+            laser_calc(s);
         }
     });
 }

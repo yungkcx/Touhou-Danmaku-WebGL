@@ -1,5 +1,7 @@
+const MAX_GAMESPEED = 60;
+
 const FMX = 500; // FIELD_MAX_X
-const FMY = 550; // FIELD_MAX_Y
+const FMY = 583; // FIELD_MAX_Y
 // const FMX = 384;
 // const FMY = 448;
 const MAX_SHOT = 10;

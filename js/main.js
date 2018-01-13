@@ -1,4 +1,5 @@
 let gameloopid = null; // For cancelAnimationFrame().
+let gamespeed = MAX_GAMESPEED;
 let gl;
 let text_ctx;
 
@@ -30,18 +31,19 @@ function restart_game() {
 let pre_total_bullet = 0;
 
 function gameloop(now) {
-    count_fps(now);
-    se_bullet.forEach(se => {
-        se.flag = false;
-    });
-    boss_calc();
-    player_calc();
-    if (total_bullet > pre_total_bullet) {
-        // console.log("total bullet =", total_bullet);
-        pre_total_bullet = total_bullet;
+    if (stage_count % Math.floor(MAX_GAMESPEED / gamespeed) == 0) {
+        count_fps(now);
+        // se_bullet.forEach(se => {
+        //     se.flag = false;
+        // });
+        boss_calc();
+        player_calc();
+        if (total_bullet > pre_total_bullet) {
+            // console.log("total bullet =", total_bullet);
+            pre_total_bullet = total_bullet;
+        }
+        graph_main();
     }
-
-    graph_main();
 
     // se_play();
     stage_count++;

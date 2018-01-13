@@ -471,4 +471,112 @@ let shot_bullet = [
             }
         }
     }),
+    create_danmaku(function f011(s) {
+        const TM = 170;
+        const NSTATE = 5;
+        let t = s.count % TM,
+            t2 = s.count,
+            t3 = s.count % (TM * 5);
+        this.num = this.num | 0;
+        if (t2 == 0) {
+            this.num = 0;
+        }
+        if (t == 0 && (0 <= t3 && t3 < TM * 3)) {
+            const DNUMX = 20;
+            let xlen = FMX / DNUMX;
+            let dnumy = Math.floor(FMY / xlen);
+            let ylen = FMY / dnumy;
+            let x = 0,
+                y = 0,
+                angle = 0;
+            for (let j = 0; j < 4; j++) {
+                let to = j % 2 ? dnumy : DNUMX;
+                x += Math.cos(angle) * xlen;
+                y += Math.sin(angle) * ylen;
+                for (let i = 0; i < to - 1; i++) {
+                    let b = get_bullet(s, 4, 0);
+                    if (b != null) {
+                        b.x = x;
+                        b.y = y;
+                        switch (this.num) {
+                            case 0:
+                                b.color = 0;
+                                b.angle = bulletatan(b, FMX / 2, FMY / 2);
+                                b.speed = 1.3;
+                                b.state = 0;
+                                break;
+                            case 1:
+                                b.color = 3;
+                                b.angle = bulletatan(b, FMX / 2, FMY / 2);
+                                b.speed = 1.4 + ((j % 2 ? -1 : 1) * ((Math.cos(PI2 / to * i - PI) + 1) / 2)) * 0.4;
+                                b.state = 1;
+                                break;
+                            case 2:
+                                b.color = 6;
+                                b.angle = bulletatan(b, FMX / 2, FMY / 2);
+                                b.speed = 1.3;
+                                b.state = 2;
+                                b.base_angle[0] = PI / 1000 * (j % 2 ? -1 : 1) * ((Math.cos(PI2 / to * i - PI) + 1) / 2);
+                                break;
+                            default:
+                                break;
+                        }
+                        se_bullet[0].flag = true;
+                    }
+                    x += Math.cos(angle) * xlen;
+                    y += Math.sin(angle) * ylen;
+                }
+                angle += PI / 2;
+            }
+        } else if (t == 0 && (TM * 3 <= t3 && t3 < TM * NSTATE)) {
+            const DNUMX = 12;
+            let xlen = FMX / DNUMX;
+            let dnumy = Math.floor(FMY / xlen);
+            let ylen = FMY / dnumy;
+            let x = 0,
+                y = 0,
+                angle = 0;
+            for (let j = 0; j < 4; j++) {
+                let to = j % 2 ? dnumy : DNUMX;
+                for (let i = 0; i < to; i++) {
+                    for (let k = 0; k < 2; k++) {
+                        let b = get_bullet(s, 4, 0);
+                        if (b != null) {
+                            b.x = x;
+                            b.y = y;
+                            switch (this.num) {
+                                case 3:
+                                    b.color = 0;
+                                    b.angle = angle + PI / 2;
+                                    b.speed = 1.1 + 0.5 * k;
+                                    b.state = 3;
+                                    break;
+                                case 4:
+                                    b.color = 3;
+                                    b.angle = angle + PI / 2 - PI / 14 + PI / 7 * k;
+                                    b.speed = 1.3;
+                                    b.state = 4;
+                                default:
+                                    break;
+                            }
+                            se_bullet[0].flag = true;
+                        }
+                    }
+                    x += Math.cos(angle) * xlen;
+                    y += Math.sin(angle) * ylen;
+                }
+                angle += PI / 2;
+            }
+        }
+        s.bullet.forEach(b => {
+            if (b.flag == true) {
+                if (b.state == 2) {
+                    b.angle += b.base_angle[0];
+                }
+            }
+        });
+        if (t == TM - 1) {
+            this.num = (this.num + 1) % NSTATE;
+        }
+    }),
 ];

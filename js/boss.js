@@ -1,8 +1,3 @@
-// Return the angle between boss and player.
-function bossatan() {
-    return Math.atan2(player.y - boss.y, player.x - boss.x);
-}
-
 // For accelarating move.
 function input_boss_phy(x, y, t) {
     let ymax_x, ymax_y;

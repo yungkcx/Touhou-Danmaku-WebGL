@@ -80,3 +80,13 @@ function range(angle) {
 function getrand(max) {
     return Math.floor(Math.random() * max);
 }
+
+// Return the angle between the boss and player.
+function bossatan() {
+    return Math.atan2(player.y - boss.y, player.x - boss.x);
+}
+
+// Return the angle between the bullet and (x, y).
+function bulletatan(b, x, y) {
+    return Math.atan2(y - b.y, x - b.x);
+}

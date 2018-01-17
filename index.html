@@ -4,21 +4,33 @@
 <head>
     <title>This is title</title>
     <meta charset="utf-8" />
+    <link rel="stylesheet" href="lib/codemirror/codemirror.css">
+    <link rel="stylesheet" href="lib/codemirror/theme/base16-dark.css">
     <style>
-        #main {
-            position: absolute;
-            left: 0px;
-            top: 0px;
-            margin: 20px;
-            background-color: black;
+        #game {
+            position: relative;
+            float: left;
         }
 
-        #fps-text {
-            position: absolute;
-            margin: 20px;
+        .CodeMirror {
+            height: 583px;
+        }
+
+        #editor {
+            position: relative;
+            float: left;
+            width: 50%;
+        }
+
+        #main {
+            background-color: black;
         }
     </style>
-    <script type="text/javascript" src="js/webgl-2d.js"></script>
+    <script type="text/javascript" src="lib/codemirror/codemirror.js"></script>
+    <script type="text/javascript" src="lib/codemirror/mode/javascript.js"></script>
+    <script type="text/javascript" src="lib/codemirror/addon/matchbrackets.js"></script>
+    <script type="text/javascript" src="lib/codemirror/addon/closebrackets.js"></script>
+    <script type="text/javascript" src="lib/webgl-2d.js"></script>
     <script type="text/javascript" src="js/define.js"></script>
     <script type="text/javascript" src="js/global.js"></script>
     <script type="text/javascript" src="js/key.js"></script>
@@ -34,6 +46,35 @@
 </head>
 
 <body>
+    <div id="game">
+        <canvas id="main"></canvas>
+        <canvas id="fps-text"></canvas>
+    </div>
+    <div id="editor">
+        <textarea id="code"></textarea>
+        <script>
+            let codeArea = document.getElementById("code");
+            editor = CodeMirror.fromTextArea(codeArea, {
+                lineNumbers: true,
+                lineWrapping: true,
+                matchBrackets: true,
+                autoCloseBrackets: true,
+                indentUnit: 4,
+                fixedGutter: false,
+                theme: "base16-dark",
+                autofocus: true,
+                mode: {
+                    name: "javascript",
+                    globalVars: true
+                },
+            });
+        </script>
+        <button id="start">Run</button>
+        <button id="pause">Pause</button>
+        <button id="continue">Continue</button>
+        <button id="restart">Restart</button>
+        <input type="checkbox" id="sound-effect" disabled="disabled" />Sound Effect
+    </div>
 </body>
 
 </html>

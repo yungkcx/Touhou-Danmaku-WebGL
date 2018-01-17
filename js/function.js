@@ -51,11 +51,18 @@ function drawLaser(img, startX, startY, width, height, angle) {
     gl.restore();
 }
 
+function se_reset() {
+    se_bullet.forEach(se => {
+        se.flag = false;
+    });
+}
+
 function se_play() {
     se_bullet.forEach(se => {
         if (se.flag == true) {
             if (se.audio.currentTime > 0) {
-                se.audio.currentTime = 0;
+                // se.audio.currentTime = 0;
+                // se.audio.fastSeek(0);
             }
             se.audio.play();
         }

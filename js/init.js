@@ -66,9 +66,7 @@ function load() {
 }
 
 function init_webgl() {
-    let canvas = document.createElement("canvas");
-    document.body.appendChild(canvas);
-    canvas.id = "main";
+    let canvas = document.getElementById("main");
     canvas.width = FMX;
     canvas.height = FMY;
     WebGL2D.enable(canvas);
@@ -80,21 +78,15 @@ function init_webgl() {
 }
 
 function init_fps_text() {
-    text_canvas = document.createElement("canvas");
-    document.body.appendChild(text_canvas);
-    text_canvas.id = "fps-text";
+    text_canvas = document.getElementById("fps-text");
     text_canvas.width = 70;
     text_canvas.height = 25;
+    text_canvas.style.position = "absolute";
     text_canvas.style.left = (FMX - text_canvas.width) + "px";
     text_canvas.style.top = (FMY - text_canvas.height) + "px";
     text_ctx = text_canvas.getContext('2d');
     text_ctx.fillStyle = "white";
     text_ctx.font = "12px monospace";
-}
-
-function init_key() {
-    document.addEventListener("keydown", handlekey("down"), false);
-    document.addEventListener("keyup", handlekey("up"), false);
 }
 
 function init() {
@@ -103,11 +95,9 @@ function init() {
     load().done(() => { // Wait for loading images.
         init_webgl();
         init_fps_text();
-        init_key();
 
         gameloopid = null;
         stage_count = 0;
-
         boss_enter(4);
         player = new Player(0);
 

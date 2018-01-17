@@ -1,7 +1,7 @@
 let shot_bullet = [
     create_danmaku(function f000(s) {
         if (s.count == 0) {
-            let b = get_bullet(s, s.bullet_type, s.bullet_color); //new Bullet(s.bullet_type, s.bullet_color);
+            let b = get_bullet(s, s.bullet_type, s.bullet_color);
             if (b == null) {
                 return;
             }
@@ -104,7 +104,7 @@ let shot_bullet = [
             }
         }
     }),
-    create_danmaku("「沉默的圣奈」", function f006(s) {
+    create_danmaku("月符「Silent Selene」", function f006(s) {
         const TM1 = 60;
         let t = s.count % TM1,
             t2 = s.count;

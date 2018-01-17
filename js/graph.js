@@ -49,13 +49,6 @@ function graph_shot() {
     });
 }
 
-function graph_board() {
-    drawline(0, 0, FMX, 0);
-    drawline(0, 0, 0, FMY);
-    drawline(FMX - 1, 0, FMX - 1, FMY);
-    drawline(0, FMY, FMX, FMY);
-}
-
 function graph_boss() {
     drawImage(img_boss[boss.id][boss.img], boss.dx, boss.dy, 0);
 }
@@ -68,5 +61,4 @@ function graph_main() {
     graph_boss();
     graph_player();
     graph_shot();
-    graph_board();
 }

@@ -579,4 +579,83 @@ let shot_bullet = [
             this.num = (this.num + 1) % NSTATE;
         }
     }),
+    create_danmaku("梦符「梦我梦中」", function f(s) {
+        const TM = 600;
+        const NLSBULLET = 48;
+        const INTERVAL = 2;
+        const TM2 = NLSBULLET * INTERVAL;
+        let t = s.count % TM;
+        this.motoarr = this.motoarr || null;
+        if (t == 0) {
+            this.motoarr = rand_array(NLSBULLET, 4);
+            s.basex = player.x;
+            s.basey = player.y;
+        }
+        if (t < TM2 && t % INTERVAL == 0) {
+            let i = Math.floor(t / INTERVAL);
+            let angle = PI2 / NLSBULLET * this.motoarr[i];
+            let lb = get_lsbullet(s, 0, 0);
+            if (lb != null) {
+                lb.x = s.basex + Math.cos(angle) * 60;
+                lb.y = s.basey + Math.sin(angle) * 60;
+                lb.angle = bulletatan(lb, s.basex, s.basey) + PI2 / 18;
+                lb.speed = 3.4;
+                lb.width = 10;
+                lb.height = 180;
+                lb.state = 0;
+            }
+            let b = get_bullet(s, 1, 1);
+            if (b != null) {
+                b.x = s.basex + Math.cos(angle) * 60;
+                b.y = s.basey + Math.sin(angle) * 60;
+                b.speed = 1.5;
+                b.angle = bulletatan(lb, s.basex, s.basey) + PI2 / 18 + PI;
+                b.state = 1;
+            }
+        }
+        s.lsbullet.forEach(lb => {
+            if (lb.flag == true && lb.state < 3) {
+                if (lb.x < 0 || lb.x > FMX || lb.y < 0 || lb.y > FMY) {
+                    let lb2 = get_lsbullet(s, 0, 0);
+                    if (lb2 != null) {
+                        if (lb.x < 0 || lb.x > FMX) {
+                            lb2.x = lb.x < 0 ? 0 : FMX;
+                            lb2.y = lb.y;
+                            if (lb.angle <= PI) {
+                                lb2.angle = PI - lb.angle;
+                            } else {
+                                lb2.angle = PI * 3 - lb.angle;
+                            }
+                        } else if (lb.y < 0 || lb.y > FMY) {
+                            lb2.x = lb.x;
+                            lb2.y = lb.y < 0 ? 0 : FMY;
+                            lb2.angle = PI2 - lb.angle;
+                        }
+                        lb2.speed = lb.speed;
+                        lb2.width = lb.width;
+                        lb2.height = lb.height;
+                        lb2.state = lb.state + 1;
+                    }
+                    lb.state = 4;
+                }
+            }
+        });
+        s.bullet.forEach(b => {
+            if (b.flag == true && b.state == 1) {
+                if (b.x < 0 || b.x > FMX || b.y < 0) {
+                    b.state = 0;
+                    if (b.x < 0 || b.x > FMX) {
+                        if (b.angle <= PI) {
+                            b.angle = PI - b.angle;
+                        } else {
+                            b.angle = PI * 3 - b.angle;
+                        }
+                    } else if (b.y < 0) {
+                        b.angle = PI2 - b.angle;
+                    }
+                }
+            }
+        });
+    }),
+    add_danmaku("nothing", s => {}),
 ];

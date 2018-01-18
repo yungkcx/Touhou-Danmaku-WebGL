@@ -3,26 +3,28 @@ let gamespeed = MAX_GAMESPEED;
 let gl;
 let editor = null;
 let allow_se = false;
+let selected_danmaku = -1;
 
 window.onload = () => {
     init().done(() => {
         editor.setValue(
             "function f(s) {\n" +
-            "   if (s.count == 0) {\n" +
-            "       let b = get_bullet(s, s.bullet_type, s.bullet_color);\n" +
-            "       if (b == null) {\n" +
-            "           return;\n" +
-            "       }\n" +
-            "       b.speed = 3;\n" +
-            "       b.angle = bossatan();\n" +
-            "       b.x = boss.x;\n" +
-            "       b.y = boss.y;\n" +
-            "   }\n" +
+            "\tif (s.count == 0) {\n" +
+            "\t\tlet b = get_bullet(s, 0, 0);\n" +
+            "\t\tif (b == null) {\n" +
+            "\t\t\treturn;\n" +
+            "\t\t}\n" +
+            "\t\tb.speed = 3;\n" +
+            "\t\tb.angle = bossatan();\n" +
+            "\t\tb.x = boss.x;\n" +
+            "\t\tb.y = boss.y;\n" +
+            "\t}\n" +
             "}"
         );
 
-        document.onkeydown = handlekey("down");
-        document.onkeyup = handlekey("up");
+        let game = document.getElementById("game");
+        game.onkeydown = handlekey("down");
+        game.onkeyup = handlekey("up");
 
         document.getElementById("start").onclick = () => {
             let str = editor.getLine(0);
@@ -34,10 +36,15 @@ window.onload = () => {
                 line: editor.lineCount(),
                 ch: 0
             });
-            str = "shot_bullet.push(create_danmaku(" +
+            let story_str;
+            if (selected_danmaku < 0) {
+                story_str = "story=[add_danmaku(60,shot_bullet.length-1,0,0)];";
+            } else {
+                story_str = "story=[add_danmaku(60,selected_danmaku,0,0)];";
+            }
+            str = "shot_bullet[shot_bullet.length-1]=create_danmaku(" +
                 danmaku_title + (danmaku_title === "" ? "" : ",") +
-                danmaku_func + "));" +
-                "story=[add_danmaku(60,shot_bullet.length-1,0,0)];";
+                danmaku_func + ");" + story_str;
             eval(str);
             start_game();
         };
@@ -59,6 +66,25 @@ window.onload = () => {
             }
         }
         se_checkbox.onchange();
+
+        let select = document.getElementById("select-danmaku");
+        let option = document.createElement("option");
+        option.value = -1;
+        option.innerHTML = "From editor...";
+        select.appendChild(option);
+        for (let i = 0; i < shot_bullet.length - 1; i++) {
+            let option = document.createElement("option");
+            option.value = i;
+            if (shot_bullet[i].title != null) {
+                option.innerHTML = shot_bullet[i].title;
+            } else {
+                option.innerHTML = i;
+            }
+            select.appendChild(option);
+        }
+        select.onchange = () => {
+            selected_danmaku = select.value;
+        }
     });
 }
 
@@ -73,6 +99,7 @@ function continue_game() {
     if (gameloopid === null) {
         gameloopid = requestAnimationFrame(gameloop);
     }
+    document.getElementById("game").focus();
 }
 
 function start_game() {
@@ -85,6 +112,7 @@ function restart_game() {
     init().done(() => {
         gameloopid = requestAnimationFrame(gameloop);
     });
+    document.getElementById("game").focus();
 }
 
 let pre_total_bullet = 0;

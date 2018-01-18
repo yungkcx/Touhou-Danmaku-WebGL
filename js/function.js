@@ -3,11 +3,11 @@ function create_danmaku(title_or_func, shot_func) {
         title: title_or_func,
         shot: shot_func
     };
-    if (arguments.length == 1 && typeof title_or_func == 'function') {
+    if (arguments.length == 1 && typeof title_or_func == "function") {
         obj.title = null;
         obj.shot = title_or_func;
         return obj;
-    } else if (arguments.length == 2 && typeof title_or_func == 'string') {
+    } else if (arguments.length == 2 && typeof title_or_func == "string") {
         return obj;
     } else {
         console.error("Error: wrong type of the arguments");
@@ -35,11 +35,11 @@ function drawline(x1, y1, x2, y2, color = "blue") {
     gl.closePath();
 }
 
-function drawImage(img, x, y, angle) {
+function drawImage(img, x, y, angle, width = img.width, height = img.height) {
     gl.save();
     gl.translate(x, y);
     gl.rotate(angle);
-    gl.drawImage(img, Math.floor(-img.width / 2), Math.floor(-img.height / 2));
+    gl.drawImage(img, Math.floor(-width / 2), Math.floor(-height / 2), width, height);
     gl.restore();
 }
 
@@ -88,6 +88,41 @@ function getrand(max) {
     return Math.floor(Math.random() * max);
 }
 
+function rand_array(n, layer = 1) {
+    let arr = [];
+    let retarr = [];
+    let layerlen = Math.ceil(n / layer);
+    for (let j = 0; j < layer; j++) {
+        let tmparr = [];
+        let tmplen;
+        if (n - arr.length < layerlen) {
+            tmplen = n - arr.length;
+        } else {
+            tmplen = Math.ceil(n / layer);
+        }
+        for (let i = 0; i < tmplen; i++) {
+            tmparr.push(j + layer * i);
+        }
+        for (let i = tmplen - 1; i > 0; i--) {
+            let t = Math.floor(Math.random() * (i + 1));
+            let item = tmparr[t];
+            tmparr[t] = tmparr[i];
+            tmparr[i] = item;
+        }
+        arr.push(tmparr);
+    }
+    for (let i = arr.length - 1; i > 0; i--) {
+        let t = Math.floor(Math.random() * (i + 1));
+        let item = arr[t];
+        arr[t] = arr[i];
+        arr[i] = item;
+    }
+    arr.forEach(a => {
+        retarr = retarr.concat(a);
+    });
+    return retarr;
+}
+
 // Return the angle between the boss and player.
 function bossatan() {
     return Math.atan2(player.y - boss.y, player.x - boss.x);
@@ -96,4 +131,9 @@ function bossatan() {
 // Return the angle between the bullet and (x, y).
 function bulletatan(b, x, y) {
     return Math.atan2(y - b.y, x - b.x);
+}
+
+// Return the angle between the bullet and the player.
+function bulletatanpl(b) {
+    return Math.atan2(player.y - b.y, player.x - b.x);
 }

@@ -34,10 +34,24 @@ function graph_laser(s) {
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 }
 
+function graph_lsbullet(s) {
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+    s.lsbullet.forEach(lb => {
+        if (lb.flag == true) {
+            drawLaser(img_laser[lb.type][lb.color], lb.startX, lb.startY, lb.width, lb.disph, lb.angle - PI / 2);
+            if (lb.ismoto == true) {
+                drawImage(img_laser_moto[lb.type][lb.color], lb.startX, lb.startY, 0, 40, 40);
+            }
+        }
+    });
+    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+}
+
 function graph_shot() {
     shot.forEach(s => {
         if (s.flag == true) {
             graph_laser(s);
+            graph_lsbullet(s);
         }
     });
     graph_bullet_layer.forEach(layer => {

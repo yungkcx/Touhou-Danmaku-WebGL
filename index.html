@@ -19,6 +19,7 @@
         #editor {
             position: relative;
             float: left;
+            /* padding-left: 500px; */
             width: 50%;
         }
 
@@ -46,7 +47,7 @@
 </head>
 
 <body>
-    <div id="game">
+    <div id="game" tabindex="-1">
         <canvas id="main"></canvas>
         <canvas id="fps-text"></canvas>
     </div>
@@ -59,10 +60,11 @@
                 lineWrapping: true,
                 matchBrackets: true,
                 autoCloseBrackets: true,
+                indentWithTabs: true,
+                tabSize: 4,
                 indentUnit: 4,
                 fixedGutter: false,
                 theme: "base16-dark",
-                autofocus: true,
                 mode: {
                     name: "javascript",
                     globalVars: true
@@ -73,6 +75,7 @@
         <button id="pause">Pause</button>
         <button id="continue">Continue</button>
         <button id="restart">Restart</button>
+        <select id="select-danmaku"></select>
         <input type="checkbox" id="sound-effect" disabled="disabled" />Sound Effect
     </div>
 </body>

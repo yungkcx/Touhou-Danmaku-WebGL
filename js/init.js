@@ -105,11 +105,16 @@ function init() {
         for (let i = 0; i < MAX_SHOT; i++) {
             shot[i] = new Shot(0);
             shot[i].bullet = new Array(MAX_SHOT_BULLET);
+            shot[i].laser = new Array(MAX_SHOT_LASER);
+            shot[i].lsbullet = new Array(MAX_SHOT_LASER_BULLET);
             for (let j = 0; j < MAX_SHOT_BULLET; j++) {
                 shot[i].bullet[j] = new Bullet();
             }
             for (let j = 0; j < MAX_SHOT_LASER; j++) {
                 shot[i].laser[j] = new Laser();
+            }
+            for (let j = 0; j < MAX_SHOT_LASER_BULLET; j++) {
+                shot[i].lsbullet[j] = new LaserBullet();
             }
         }
         donefunc();

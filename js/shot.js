@@ -63,6 +63,38 @@ function get_laser(s, type, color) {
     return null;
 }
 
+function get_lsbullet(s, type, color) {
+    if (type < 0 || type > img_laser.length) {
+        console.error("Error: invalid laser bullet type");
+        return null;
+    }
+    if (color < 0 || color >= img_laser[type].length) {
+        console.error("Error: invalid laser bullet color");
+        return null;
+    }
+    for (let i = 0; i < s.lsbullet.length; i++) {
+        if (s.lsbullet[i].flag == false) {
+            s.lsbullet[i].flag = true;
+            s.lsbullet[i].count = 0;
+            s.lsbullet[i].type = type;
+            s.lsbullet[i].color = color;
+            s.lsbullet[i].x = 0;
+            s.lsbullet[i].y = 0;
+            s.lsbullet[i].startX = 0;
+            s.lsbullet[i].startY = 0;
+            s.lsbullet[i].width = 0;
+            s.lsbullet[i].height = 0;
+            s.lsbullet[i].disph = 0;
+            s.lsbullet[i].angle = 0;
+            s.lsbullet[i].speed = 0;
+            s.lsbullet[i].state = 0;
+            s.lsbullet[i].ismoto = true;
+            return s.lsbullet[i];
+        }
+    }
+    return null;
+}
+
 function shot_enter() {
     story.forEach(st => {
         if (st.start_time == boss.count) {
@@ -110,6 +142,31 @@ function laser_calc(s) {
     });
 }
 
+function lsbullet_calc(s) {
+    s.lsbullet.forEach(lb => {
+        if (lb.flag == true) {
+            if (lb.ismoto == true) {
+                lb.x += Math.cos(lb.angle) * lb.speed / 2;
+                lb.y += Math.sin(lb.angle) * lb.speed / 2;
+                lb.disph += lb.speed;
+                if (lb.disph >= lb.height) {
+                    lb.disph = lb.height;
+                    lb.ismoto = false;
+                }
+            } else {
+                lb.x += Math.cos(lb.angle) * lb.speed;
+                lb.y += Math.sin(lb.angle) * lb.speed;
+            }
+            lb.startX = lb.x - Math.cos(lb.angle) * lb.disph / 2;
+            lb.startY = lb.y - Math.sin(lb.angle) * lb.disph / 2;
+            lb.count++;
+            if (lb.x < -lb.height / 2 || lb.x > FMX + lb.height / 2 || lb.y < -lb.height / 2 || lb.y > FMY + lb.height / 2) {
+                lb.flag = false;
+            }
+        }
+    });
+}
+
 function shot_calc(s) {
     total_bullet = 0;
     shot.forEach(s => {
@@ -135,15 +192,17 @@ function shot_calc(s) {
             });
 
             s.count++;
-            if (sum_bullet == 0 && s.issc == false) { // If there is no bullet and isn't spell card.
-                s.flag = false; // Delete.
-                input_boss_phy(BOSS_POS_X, BOSS_POS_Y, 60); // Make the boss return.
-                console.log("Removed shot, type =", s.type);
-            }
+            // // Don't remove the shot.
+            // if (sum_bullet == 0 && s.issc == false) { // If there is no bullet and isn't spell card.
+            //     s.flag = false; // Delete.
+            //     input_boss_phy(BOSS_POS_X, BOSS_POS_Y, 60); // Make the boss return.
+            //     console.log("Removed shot, type =", s.type);
+            // }
             total_bullet += sum_bullet;
 
             // Calculate laser of the shot.
             laser_calc(s);
+            lsbullet_calc(s);
         }
     });
 }

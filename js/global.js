@@ -6,6 +6,7 @@ const FMY = 583; // FIELD_MAX_Y
 // const FMY = 448;
 const MAX_SHOT = 10;
 const MAX_SHOT_BULLET = 2000;
+const MAX_SHOT_LASER_BULLET = 100;
 const MAX_SHOT_LASER = 20;
 const BOSS_POS_X = FMX / 2;
 const BOSS_POS_Y = FMY * 1 / 4;

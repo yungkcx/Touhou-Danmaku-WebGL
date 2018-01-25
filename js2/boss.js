@@ -64,6 +64,6 @@ function boss_calc() {
     boss.dx = boss.x;
     boss.dy = boss.y + Math.sin(PI2 / 130 * (stage_count % 130)) * 10;
     boss.img = Math.floor((boss.count % 32) / 8);
-    shot_main(); // Shot!!
+    shot_main(); // Shot.
     boss.count++;
 }

@@ -70,10 +70,7 @@ function init_webgl() {
     canvas.width = FMX;
     canvas.height = FMY;
     WebGL2D.enable(canvas);
-    gl = canvas.getContext("webgl-2d");
-    if (!gl) {
-        gl = canvas.getContext('2d');
-    }
+    gl = canvas.getContext('webgl-2d');
     gl.clearRect(0, 0, FMX, FMY);
 }
 
@@ -89,34 +86,39 @@ function init_fps_text() {
     text_ctx.font = "12px monospace";
 }
 
+function init_global() {
+    gameloopid = null;
+    stage_count = 0;
+    boss_enter(4);
+    player = new Player(0);
+    shot = new Array(MAX_SHOT);
+    pre_total_bullet = 0;
+    total_bullet = 0;
+
+    for (let i = 0; i < MAX_SHOT; i++) {
+        shot[i] = new Shot(0);
+        shot[i].bullet = new Array(MAX_SHOT_BULLET);
+        shot[i].laser = new Array(MAX_SHOT_LASER);
+        shot[i].lsbullet = new Array(MAX_SHOT_LASER_BULLET);
+        for (let j = 0; j < MAX_SHOT_BULLET; j++) {
+            shot[i].bullet[j] = new Bullet();
+        }
+        for (let j = 0; j < MAX_SHOT_LASER; j++) {
+            shot[i].laser[j] = new Laser();
+        }
+        for (let j = 0; j < MAX_SHOT_LASER_BULLET; j++) {
+            shot[i].lsbullet[j] = new LaserBullet();
+        }
+    }
+}
+
 function init() {
     let donefunc = () => {};
 
     load().done(() => { // Wait for loading images.
         init_webgl();
         init_fps_text();
-
-        gameloopid = null;
-        stage_count = 0;
-        boss_enter(4);
-        player = new Player(0);
-
-        shot = new Array(MAX_SHOT);
-        for (let i = 0; i < MAX_SHOT; i++) {
-            shot[i] = new Shot(0);
-            shot[i].bullet = new Array(MAX_SHOT_BULLET);
-            shot[i].laser = new Array(MAX_SHOT_LASER);
-            shot[i].lsbullet = new Array(MAX_SHOT_LASER_BULLET);
-            for (let j = 0; j < MAX_SHOT_BULLET; j++) {
-                shot[i].bullet[j] = new Bullet();
-            }
-            for (let j = 0; j < MAX_SHOT_LASER; j++) {
-                shot[i].laser[j] = new Laser();
-            }
-            for (let j = 0; j < MAX_SHOT_LASER_BULLET; j++) {
-                shot[i].lsbullet[j] = new LaserBullet();
-            }
-        }
+        init_global();
         donefunc();
     });
 

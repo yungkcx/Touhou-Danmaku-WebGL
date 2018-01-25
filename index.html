@@ -2,7 +2,8 @@
 <html>
 
 <head>
-    <title>This is title</title>
+    <meta charset="utf-8">
+    <title>Touhou Danmaku System</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="lib/codemirror/codemirror.css">
     <link rel="stylesheet" href="lib/codemirror/theme/base16-dark.css">
@@ -10,6 +11,12 @@
         #game {
             position: relative;
             float: left;
+            clear: left;
+        }
+
+        #sum {
+            float: left;
+            width: 500px;
         }
 
         .CodeMirror {
@@ -19,37 +26,36 @@
         #editor {
             position: relative;
             float: left;
-            /* padding-left: 500px; */
             width: 50%;
         }
 
-        #main {
-            background-color: black;
+        #control {
+            float: left;
         }
     </style>
-    <script type="text/javascript" src="lib/codemirror/codemirror.js"></script>
-    <script type="text/javascript" src="lib/codemirror/mode/javascript.js"></script>
-    <script type="text/javascript" src="lib/codemirror/addon/matchbrackets.js"></script>
-    <script type="text/javascript" src="lib/codemirror/addon/closebrackets.js"></script>
-    <script type="text/javascript" src="lib/webgl-2d.js"></script>
-    <script type="text/javascript" src="js/define.js"></script>
-    <script type="text/javascript" src="js/global.js"></script>
-    <script type="text/javascript" src="js/key.js"></script>
-    <script type="text/javascript" src="js/function.js"></script>
-    <script type="text/javascript" src="js/player.js"></script>
-    <script type="text/javascript" src="js/boss.js"></script>
-    <script type="text/javascript" src="js/init.js"></script>
-    <script type="text/javascript" src="js/graph.js"></script>
-    <script type="text/javascript" src="js/shot.js"></script>
-    <script type="text/javascript" src="js/shot_bullet.js"></script>
-    <script type="text/javascript" src="js/story.js"></script>
-    <script type="text/javascript" src="js/main.js"></script>
 </head>
 
+<script src="lib/pixi/pixi.min.js"></script>
+<script src="lib/codemirror/codemirror.js"></script>
+<script src="lib/codemirror/mode/javascript.js"></script>
+<script src="lib/codemirror/addon/matchbrackets.js"></script>
+<script src="lib/codemirror/addon/closebrackets.js"></script>
+<script src="js/key.js"></script>
+<script src="js/main.js"></script>
+
 <body>
-    <div id="game" tabindex="-1">
-        <canvas id="main"></canvas>
-        <canvas id="fps-text"></canvas>
+    <div id="sum">
+        <span>0</span>
+    </div>
+    <div id="control">
+        <button id="start">Run</button>
+        <button id="stop">Stop</button>
+        <button id="pause">Pause</button>
+        <button id="continue">Continue</button>
+        <select id="select-danmaku"></select>
+        <input type="checkbox" id="sound-effect" disabled="disabled" />Sound Effect
+    </div>
+    <div id="game">
     </div>
     <div id="editor">
         <textarea id="code"></textarea>
@@ -71,12 +77,6 @@
                 },
             });
         </script>
-        <button id="start">Run</button>
-        <button id="pause">Pause</button>
-        <button id="continue">Continue</button>
-        <button id="restart">Restart</button>
-        <select id="select-danmaku"></select>
-        <input type="checkbox" id="sound-effect" disabled="disabled" />Sound Effect
     </div>
 </body>
 

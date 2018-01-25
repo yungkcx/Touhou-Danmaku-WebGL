@@ -87,18 +87,21 @@ let shot_bullet = [
             }
         });
     }),
-    create_danmaku(function f005(s) {
-        let t = s.count % 120;
-        let t2 = s.count;
-        if ((t2 >= 0 && t2 < 240) && (t < 60 && t % 10 == 0)) {
+    create_danmaku("弹量测试", function f005(s) {
+        let t = s.count;
+        const NBULLET = 280; // Max 5140 bullets, 60 fps.
+        if (t == 0) {
+            input_boss_phy(FMX / 2, FMY / 2, 50);
+        }
+        if (t % 10 == 0 && t >= 50) {
             let angle = bossatan();
-            for (let i = 0; i < 30; i++) {
-                let b = get_bullet(s, s.bullet_type, s.bullet_color);
+            for (let i = 0; i < NBULLET; i++) {
+                let b = get_bullet(s, 8, 1);
                 if (b != null) {
                     b.x = boss.x;
                     b.y = boss.y;
-                    b.speed = 3;
-                    b.angle = angle + PI2 / 30 * i;
+                    b.speed = 2;
+                    b.angle = angle + PI2 / NBULLET * i;
                     se_bullet[0].flag = 1;
                 }
             }

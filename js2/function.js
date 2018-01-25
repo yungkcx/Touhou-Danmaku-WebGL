@@ -80,6 +80,14 @@ function count_fps(now) {
     }
 }
 
+function count_total_bullet() {
+    if (total_bullet > pre_total_bullet) {
+        // console.log("total bullet =", total_bullet);
+        document.getElementById("total-bullet").innerHTML = total_bullet;
+        pre_total_bullet = total_bullet;
+    }
+}
+
 function range(angle) {
     return (-angle + angle * 2 * Math.random());
 }

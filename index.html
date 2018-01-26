@@ -40,7 +40,6 @@
 <script src="lib/codemirror/mode/javascript.js"></script>
 <script src="lib/codemirror/addon/matchbrackets.js"></script>
 <script src="lib/codemirror/addon/closebrackets.js"></script>
-<script src="js/key.js"></script>
 <script src="js/main.js"></script>
 
 <body>
@@ -48,14 +47,14 @@
         <span>0</span>
     </div>
     <div id="control">
-        <button id="start">Run</button>
+        <button id="start">Start</button>
         <button id="stop">Stop</button>
         <button id="pause">Pause</button>
         <button id="continue">Continue</button>
         <select id="select-danmaku"></select>
         <input type="checkbox" id="sound-effect" disabled="disabled" />Sound Effect
     </div>
-    <div id="game">
+    <div id="game" tabindex="-1">
     </div>
     <div id="editor">
         <textarea id="code"></textarea>

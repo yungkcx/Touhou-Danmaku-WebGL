@@ -1,7 +1,7 @@
 'use strict';
 
-const FMX = 500; // FIELD_MAX_X
-const FMY = 583; // FIELD_MAX_Y
+const FMX = 500; // Maximum field x
+const FMY = 583; // Maximum field y
 // const FMX = 384;
 // const FMY = 448;
 // Aliases.
@@ -14,6 +14,7 @@ let Container = PIXI.Container,
     Text = PIXI.Text,
     resources = PIXI.loader.resources,
     Rectangle = PIXI.Rectangle,
+    BLEND_MODES = PIXI.BLEND_MODES,
     Sprite = PIXI.Sprite;
 let cos = Math.cos,
     sin = Math.sin,
@@ -21,86 +22,6 @@ let cos = Math.cos,
     PI = Math.PI,
     PI2 = Math.PI * 2;
 let editor;
-
-window.onload = () => {
-    let game = new Game(document.getElementById("game"), FMX, FMY);
-    game.init().done(() => {
-        editor.setValue(
-            "function f(s) {\n" +
-            "\tif (s.count == 0) {\n" +
-            "\t\tlet b = get_bullet(s, 0, 0);\n" +
-            "\t\tif (b == null) {\n" +
-            "\t\t\treturn;\n" +
-            "\t\t}\n" +
-            "\t\tb.speed = 3;\n" +
-            "\t\tb.angle = bossatan();\n" +
-            "\t\tb.x = boss.x;\n" +
-            "\t\tb.y = boss.y;\n" +
-            "\t}\n" +
-            "}"
-        );
-        addButtonListener(game);
-    });
-}
-
-function addButtonListener(game) {
-    let gameDiv = document.getElementById("game");
-    gameDiv.onkeydown = game.input.handle("down");
-    gameDiv.onkeyup = game.input.handle("up");
-
-    document.getElementById("start").onclick = () => {
-        let str = editor.getLine(0);
-        let danmakuTitle = str[0] === '"' ? str : "";
-        let danmakuFunc = editor.getRange({
-            line: danmakuTitle === "" ? 0 : 1,
-            ch: 0
-        }, {
-            line: editor.lineCount(),
-            ch: 0
-        });
-        // let story_str;
-        // if (selected_danmaku < 0) {
-        //     story_str = "story=[add_danmaku(60,shot_bullet.length-1,0,0)];";
-        // } else {
-        //     story_str = "story=[add_danmaku(60,selected_danmaku,0,0)];";
-        // }
-        // str = "shot_bullet[shot_bullet.length-1]=create_danmaku(" +
-        //     danmaku_title + (danmaku_title === "" ? "" : ",") +
-        //     danmaku_func + ");" + story_str;
-        // eval(str);
-        gameDiv.focus();
-        game.start();
-    };
-    document.getElementById("stop").onclick = () => {
-        game.stop();
-    }
-    document.getElementById("pause").onclick = () => {
-        game.pause();
-    };
-    document.getElementById("continue").onclick = () => {
-        gameDiv.focus();
-        game.continue();
-    };
-
-    let select = document.getElementById("select-danmaku");
-    let option = document.createElement("option");
-    option.value = -1;
-    option.innerHTML = "From editor...";
-    select.appendChild(option);
-    // for (let i = 0; i < shot_bullet.length - 1; i++) {
-    //     let option = document.createElement("option");
-    //     option.value = i;
-    //     if (shot_bullet[i].title != null) {
-    //         option.innerHTML = shot_bullet[i].title;
-    //     } else {
-    //         option.innerHTML = i;
-    //     }
-    //     select.appendChild(option);
-    // }
-    // select.onchange = () => {
-    //     selected_danmaku = select.value;
-    // }
-}
 
 class KeyInput {
     constructor() {
@@ -149,133 +70,34 @@ class KeyInput {
     }
 }
 
-class Game {
-    constructor(parent, width, height) {
-        this.stage = new Container();
-        this.renderer = autoDetectRenderer(width, height);
-        this.input = new KeyInput();
-        this.mainLoopId = 0;
-        this.player = new Player(this.input);
-        this.boss = new Boss();
-        this.danmaku = new Danmaku(this.boss, this.player.position);
-        this.width = width;
-        this.height = height;
-        this.count = 0;
-        this.lastCount = 0; // For calculating fps.
-        this.lastTime = 0;
-        this.fpsText = new Text("00.00 fps", {
-            font: "12px monospace",
-            fill: "white"
-        });
-        this.fpsText.position.set(FMX - this.fpsText.width - 10, FMY - this.fpsText.height - 5);
-
-        parent.appendChild(this.renderer.view);
-        this.stage.addChild(this.boss);
-        this.stage.addChild(this.player);
-        this.stage.addChild(this.danmaku);
-        this.stage.addChild(this.fpsText);
-        this.render();
-    }
-
-    render() {
-        this.renderer.render(this.stage);
-    }
-
-    init() {
-        let donefunc = null;
-        loader
-            .add(["data/img/bullet/bullet.json", "data/img/player/pl0.png", "data/img/boss/boss4.png"])
-            .load(() => {
-                this.danmaku.createTextures("data/img/bullet/bullet.json");
-                this.danmaku.set(0);
-                this.player.set(0);
-                this.boss.set(4);
-                donefunc();
-            });
-
-        return {
-            done: f => {
-                donefunc = donefunc || f;
-            }
-        }
-    }
-
-    start() {
-        this.stop();
-        this.player.visible = true;
-        this.player.playAnimation(this.player.states.normal);
-        this.boss.visible = true;
-        this.boss.putPhysic(FMX / 2, FMY / 4, 50);
-        this.boss.playAnimation();
-        this.requestNextMainLoop();
-    }
-
-    stop() {
-        if (this.mainLoopId !== 0) {
-            window.cancelAnimationFrame(this.mainLoopId);
-        }
-        this.player.reset();
-        this.boss.reset();
-        this.danmaku.reset();
-        this.mainLoopId = 0;
-        this.count = 0;
-        this.render();
-    }
-
-    pause() {
-        if (this.mainLoopId !== 0) {
-            window.cancelAnimationFrame(this.mainLoopId);
-            this.mainLoopId = 0;
-        }
-    }
-
-    continue () {
-        if (this.mainLoopId === 0) {
-            this.requestNextMainLoop();
-        }
-    }
-
-    requestNextMainLoop() {
-        this.mainLoopId = window.requestAnimationFrame(now => this.mainLoop(now));
-    }
-
-    calcAndDisplayFps(now) {
-        if (now - this.lastTime >= 500) {
-            let fps = (this.count - this.lastCount) / (now - this.lastTime) * 1000;
-            this.lastCount = this.count;
-            this.lastTime = now;
-            let text = fps.toFixed(2) + " fps";
-            this.fpsText.text = text;
-        }
-    }
-
-    mainLoop(now) {
-        this.player.update(this.count);
-        this.boss.update(this.count);
-        this.danmaku.update(this.count);
-        this.render();
-        this.calcAndDisplayFps(now);
-        this.count++;
-        this.requestNextMainLoop();
-    }
-};
-
 class GameObject extends Sprite {
     constructor() {
         super();
         this.visible = false;
-        this.speed = 0;
+        this.vx = 0;
+        this.vy = 0;
         this.anchor.set(0.5, 0.5);
         this.anglev = 0;
+        this.speedv = 0;
     }
 
     get angle() {
         return this.anglev;
     }
-
     set angle(value) {
         this.anglev = value;
         this.rotation = value + PI / 2;
+        this.vx = this.speed * cos(value);
+        this.vy = this.speed * sin(value);
+    }
+
+    get speed() {
+        return this.speedv;
+    }
+    set speed(value) {
+        this.speedv = value;
+        this.vx = value * cos(this.angle);
+        this.vy = value * sin(this.angle);
     }
 
     setPos(x, y) {
@@ -286,9 +108,13 @@ class GameObject extends Sprite {
         return atan2(y - this.y, x - this.x);
     }
 
+    atan2obj(obj) {
+        return atan2(obj.y - this.y, obj.x - this.x);
+    }
+
     move() {
-        this.x += cos(this.angle) * this.speed;
-        this.y += sin(this.angle) * this.speed;
+        this.x += this.vx;
+        this.y += this.vy;
     }
 }
 
@@ -389,18 +215,18 @@ class Player extends GameObject {
             this.input.isPressed(KeyInput.UP),
             this.input.isPressed(KeyInput.DOWN)
         ];
-        input[1] = input[0] === true ? false : input[1];
-        input[3] = input[2] === true ? false : input[3];
+        input[1] = input[0] ? false : input[1];
+        input[3] = input[2] ? false : input[3];
         let horizontal = false,
             vertical = false;
         let coef = 1;
 
-        if ((input[0] === true || input[1] === true) &&
-            (input[2] === true || input[3] === true)) {
+        if ((input[0] || input[1]) &&
+            (input[2] || input[3])) {
             coef = Math.SQRT2;
         }
         for (let i = 0; i < input.length; i++) {
-            if (input[i] === true) {
+            if (input[i]) {
                 let x = this.x,
                     y = this.y;
                 let sx = speedX[i],
@@ -476,6 +302,21 @@ class Boss extends GameObject {
         this.animation.gotoAndPlay(0);
     }
 
+    randMove(x1, y1, x2, y2, dist, t) {
+        for (let i = 0; i < 1000; i++) {
+            let x = this.x,
+                y = this.y;
+            let angle = range(PI);
+            x += cos(angle) * dist;
+            y += sin(angle) * dist;
+            if (x1 <= x && x <= x2 && y1 <= y && y <= y2) {
+                this.putPhysic(x, y, t);
+                return true;
+            }
+        }
+        return false; // Failed.
+    }
+
     calcPhysic() {
         let phy = this.physic;
         let t = phy.count;
@@ -508,7 +349,7 @@ class Boss extends GameObject {
     }
 
     update(count) {
-        if (this.physic.on === true) {
+        if (this.physic.on) {
             this.calcPhysic();
         }
     }
@@ -522,12 +363,48 @@ class Bullet extends GameObject {
         this.count = 0;
         this.visible = false;
         this.state = 0;
+        this.baseAngle = 0;
+        this.typev = 0;
+        this.colorv = 0;
+        this.rotate = false;
+    }
+
+    get type() {
+        return this.typev;
+    }
+    set type(value) {
+        this.typev = value;
+        this.texture = Bullet.textures[this.typev][this.colorv];
+    }
+
+    get color() {
+        return this.colorv;
+    }
+    set color(value) {
+        this.colorv = value;
+        this.texture = Bullet.textures[this.typev][this.colorv];
+    }
+
+    set effect(value) {
+        switch (value) {
+            case 0:
+                this.blendMode = BLEND_MODES.NORMAL;
+                break;
+            case 1:
+                this.alpha = 255;
+                this.blendMode = BLEND_MODES.ADD;
+                break;
+            default:
+        }
     }
 
     update() {
-        if (this.visible === true) {
+        if (this.visible) {
             sum++;
             this.move();
+            if (this.rotate) {
+                this.rotation = PI2 * (this.count % 120) / 120;
+            }
             if (this.x < -50 || this.x > FMX + 50 || this.y < -50 || this.y > FMY + 50) {
                 this.visible = false;
                 sum--;
@@ -535,90 +412,10 @@ class Bullet extends GameObject {
             this.count++;
         }
     }
-}
 
-class Laser extends GameObject {
-    constructor() {
-        super();
-        this.visible = false;
-    }
-
-    update() {
-        if (this.visible === true) {}
-    }
-}
-
-class Danmaku extends Container {
-    constructor(boss, playerPosition) {
-        super();
-        const MAX_BULLET = 10000;
-        const MAX_LASER = 200;
-        this.boss = boss;
-        this.plpos = playerPosition;
-        this.textures = [];
-        this.pattern = null;
-        this.patterns = [];
-        this.bullets = [];
-        this.lasers = [];
-        for (let i = 0; i < MAX_BULLET; i++) {
-            let b = new Bullet();
-            this.bullets.push(b);
-            this.addChild(b);
-        }
-        for (let i = 0; i < MAX_LASER; i++) {
-            this.lasers.push(new Laser());
-        }
-        this.patterns.push(t => {
-            const NBULLET = 500;
-            if (t % 10 === 0) {
-                for (let i = 0; i < NBULLET; i++) {
-                    let b = this.getBullet(5, 8);
-                    if (b !== null) {
-                        b.setPos(FMX / 2, FMY / 2);
-                        b.angle = PI2 / NBULLET * i;
-                        b.speed = 2;
-                    }
-                }
-            }
-        });
-    }
-
-    set(id) {
-        this.pattern = this.patterns[id];
-    }
-
-    reset() {
-        this.bullets.forEach(b => {
-            b.visible = false;
-        });
-        this.lasers.forEach(la => {
-            la.visible = false;
-        });
-    }
-
-    getBullet(type, color) {
-        if (type < 0 || this.textures.length <= type) {
-            console.error("Error: Invalid bullet type");
-            return null;
-        }
-        if (color < 0 || this.textures[type].length <= color) {
-            console.error("Error: Invalid bullet color");
-            return null;
-        }
-        for (let b of this.bullets) {
-            if (b.visible === false) {
-                b.visible = true;
-                b.texture = this.textures[type][color];
-                b.count = 0;
-                return b;
-            }
-        }
-        return null;
-    }
-
-    createTextures(url) {
+    static setTextures(url) {
         let id = resources[url].textures;
-        this.textures = new Array(Object.getOwnPropertyNames(id).length);
+        Bullet.textures = [];
         let bulletNums = [16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 3, 8, 5, 5, 8, 8, 8, 8, 8, 8, 4, 8, 8, 8, 8, 8, 3, 16, 8, 16, 16, 16, 10];
         let laserNum = 16;
         for (let i in id) {
@@ -633,27 +430,108 @@ class Danmaku extends Container {
                 let texture = new Texture(id[i], rect);
                 ts.push(texture);
             }
-            this.textures[index] = ts;
+            Bullet.textures[index] = ts;
+        }
+    }
+}
+
+class Laser extends GameObject {
+    constructor() {
+        super();
+        this.visible = false;
+    }
+
+    update() {
+        if (this.visible) {}
+    }
+}
+
+class Danmaku extends Container {
+    constructor() {
+        Danmaku.patterns = [];
+        Danmaku.layerData = [
+            [25, 26, 33],
+            [21],
+            [12, 16, 20, 22],
+            [15, 17, 18, 19, 23, 24, 29],
+            [1, 2, 10, 13, 14],
+            [0, 3, 4, 5, 6, 7, 8, 9, 11, 28],
+            [30, 31, 32],
+            [27],
+        ];
+        super();
+        const MAX_BULLET = 6000;
+        const MAX_LASER = 200;
+        this.bulletLayers = [];
+        this.pattern = null;
+        this.bullets = [];
+        this.lasers = [];
+        for (let i = 0; i < Danmaku.layerData.length; i++) {
+            let container = new Container();
+            this.bulletLayers.push(container);
+            this.addChild(container);
+        }
+        for (let i = 0; i < MAX_BULLET; i++) {
+            let b = new Bullet();
+            this.bullets.push(b);
+        }
+        for (let i = 0; i < MAX_LASER; i++) {
+            this.lasers.push(new Laser());
         }
     }
 
-    // Return the angle between the bullet and the player.
-    atan2pl(bullet) {
-        return bullet.atan2xy(this.plpos.y, this.plpos.x);
+    set(id) {
+        this.pattern = Danmaku.patterns[id];
     }
 
-    // Return the angle between the boss and player.
-    bossatan2pl() {
-        return this.boss.atan2xy(this.plpos.y, this.plpos.x);
+    reset() {
+        this.bullets.forEach(b => {
+            b.visible = false;
+        });
+        this.lasers.forEach(la => {
+            la.visible = false;
+        });
     }
 
-    setPatterns(patterns) {
-        this.patterns = patterns;
+    getBullet(type, color) {
+        if (type < 0 || Bullet.textures.length <= type) {
+            console.error("Error: Invalid bullet type");
+            return null;
+        }
+        if (color < 0 || Bullet.textures[type].length <= color) {
+            console.error("Error: Invalid bullet color");
+            return null;
+        }
+        for (let b of this.bullets) {
+            if (b.visible === false) {
+                b.visible = true;
+                b.rotate = 0;
+                b.effect = 0;
+                b.type = type;
+                b.color = color;
+                b.count = 0;
+                let index = Danmaku.inWhichLayer(type);
+                b.setParent(this.bulletLayers[index]);
+                return b;
+            }
+        }
+        return null;
+    }
+
+    handleBullets(callbackfn) {
+        this.bullets.filter(b => {
+            return b.visible;
+        }).forEach(b => {
+            callbackfn(b);
+        });
     }
 
     update(count) {
+        if (count < 0) {
+            count = NaN;
+        }
         sum = 0;
-        this.pattern(count);
+        this.pattern.shot(count);
         this.bullets.forEach(b => {
             b.update();
         });
@@ -665,16 +543,31 @@ class Danmaku extends Container {
         }
     }
 
-    static createPattern(title_or_func, shot_func) {
+    static inWhichLayer(bulletType) {
+        for (let i = 0; i < Danmaku.layerData.length; i++) {
+            for (let t of Danmaku.layerData[i]) {
+                if (t == bulletType) {
+                    return i;
+                }
+            }
+        }
+        return 0;
+    }
+
+    static setPatterns(patterns) {
+        Danmaku.patterns = patterns;
+    }
+
+    static createPattern(titleOrFunc, shotFunc) {
         let obj = {
-            title: title_or_func,
-            shot: shot_func
+            title: titleOrFunc,
+            shot: shotFunc
         };
-        if (arguments.length === 1 && typeof title_or_func === "function") {
+        if (arguments.length === 1 && typeof titleOrFunc === "function") {
             obj.title = null;
-            obj.shot = title_or_func;
+            obj.shot = titleOrFunc;
             return obj;
-        } else if (arguments.length === 2 && typeof title_or_func === "string") {
+        } else if (arguments.length === 2 && typeof titleOrFunc === "string") {
             return obj;
         } else {
             console.error("Error: Invalid type of the arguments");
@@ -740,5 +633,215 @@ class GameUtil {
             retarr = retarr.concat(a);
         });
         return retarr;
+    }
+}
+
+class Game {
+    constructor(width, height) {
+        this.stage = new Container();
+        this.renderer = autoDetectRenderer(width, height);
+        this.input = new KeyInput();
+        this.mainLoopId = 0;
+        this.player = new Player(this.input);
+        this.boss = new Boss();
+        this.danmaku = new Danmaku();
+        this.width = width;
+        this.height = height;
+        this.isPaused = false;
+        this.count = 0;
+        this.lastCount = 0; // For calculating fps.
+        this.lastTime = 0;
+        this.fpsText = new Text("00.00 fps", {
+            font: "12px monospace",
+            fill: "white"
+        });
+        this.fpsText.position.set(FMX - this.fpsText.width - 10, FMY - this.fpsText.height - 5);
+
+        this.stage.addChild(this.boss);
+        this.stage.addChild(this.player);
+        this.stage.addChild(this.danmaku);
+        this.stage.addChild(this.fpsText);
+        this.render();
+    }
+
+    addTo(parent) {
+        parent.appendChild(this.renderer.view);
+    }
+
+    render() {
+        this.renderer.render(this.stage);
+    }
+
+    init() {
+        let donefunc = null;
+        loader
+            .add(["data/img/bullet/bullet.json", "data/img/player/pl0.png", "data/img/boss/boss4.png"])
+            .load(() => {
+                Bullet.setTextures("data/img/bullet/bullet.json");
+                this.setPlayer(0);
+                this.setBoss(4);
+                donefunc();
+            });
+
+        return {
+            done: f => {
+                donefunc = donefunc || f;
+            }
+        }
+    }
+
+    setDanmaku(id) {
+        this.danmaku.set(id);
+    }
+
+    setPlayer(id) {
+        this.player.set(id);
+    }
+
+    setBoss(id) {
+        this.boss.set(id);
+    }
+
+    start() {
+        this.stop();
+        this.player.visible = true;
+        this.player.playAnimation(this.player.states.normal);
+        this.boss.visible = true;
+        this.boss.putPhysic(FMX / 2, FMY / 4, 50);
+        this.boss.playAnimation();
+        this.requestNextMainLoop();
+    }
+
+    stop() {
+        if (this.mainLoopId !== 0) {
+            window.cancelAnimationFrame(this.mainLoopId);
+        }
+        this.player.reset();
+        this.boss.reset();
+        this.danmaku.reset();
+        this.count = 0;
+        this.isPaused = false;
+        this.fpsText.text = "00.00 fps";
+        this.render();
+    }
+
+    pause() {
+        if (!this.isPaused) {
+            window.cancelAnimationFrame(this.mainLoopId);
+            this.isPaused = true;
+        }
+    }
+
+    continue () {
+        if (this.isPaused) {
+            this.requestNextMainLoop();
+            this.isPaused = false;
+        }
+    }
+
+    requestNextMainLoop() {
+        this.mainLoopId = window.requestAnimationFrame(now => this.mainLoop(now));
+    }
+
+    calcAndDisplayFps(now) {
+        if (now - this.lastTime >= 500) {
+            let fps = (this.count - this.lastCount) / (now - this.lastTime) * 1000;
+            this.lastCount = this.count;
+            this.lastTime = now;
+            let text = fps.toFixed(2) + " fps";
+            this.fpsText.text = text;
+        }
+    }
+
+    mainLoop(now) {
+        this.player.update(this.count);
+        this.boss.update(this.count);
+        this.danmaku.update(this.count - 50); // -50 for the boss to come on the stage.
+        this.render();
+        this.calcAndDisplayFps(now);
+        this.count++;
+        this.requestNextMainLoop();
+    }
+};
+
+let game = new Game(FMX, FMY);
+window.onload = () => {
+    Danmaku.setPatterns(danmakuPatterns);
+    game.addTo(document.getElementById("game"));
+    game.init().done(() => {
+        editor.setValue(
+            // "function f(t) {\n" +
+            "if (t == 0) {\n" +
+            "\tlet b = getBullet(0, 0);\n" +
+            "\tif (b != null) {\n" +
+            "\t\tb.speed = 3;\n" +
+            "\t\tb.angle = bossAtan2pl();\n" +
+            "\t\tb.x = boss.x;\n" +
+            "\t\tb.y = boss.y;\n" +
+            "\t}\n" +
+            "}"
+            // "}"
+        );
+        addButtonListener(game);
+    });
+}
+
+function addButtonListener(game) {
+    let gameDiv = document.getElementById("game");
+    gameDiv.onkeydown = game.input.handle("down");
+    gameDiv.onkeyup = game.input.handle("up");
+
+    document.getElementById("start").onclick = () => {
+        let str = editor.getLine(0);
+        let danmakuTitle = str[0] === '"' ? str : "";
+        let danmakuFunc = editor.getRange({
+            line: danmakuTitle === "" ? 0 : 1,
+            ch: 0
+        }, {
+            line: editor.lineCount(),
+            ch: 0
+        });
+        // let story_str;
+        // if (selected_danmaku < 0) {
+        //     story_str = "story=[add_danmaku(60,shot_bullet.length-1,0,0)];";
+        // } else {
+        //     story_str = "story=[add_danmaku(60,selected_danmaku,0,0)];";
+        // }
+        // str = "shot_bullet[shot_bullet.length-1]=create_danmaku(" +
+        //     danmaku_title + (danmaku_title === "" ? "" : ",") +
+        //     danmaku_func + ");" + story_str;
+        // eval(str);
+        gameDiv.focus();
+        game.start();
+    };
+    document.getElementById("stop").onclick = () => {
+        game.stop();
+    }
+    document.getElementById("pause").onclick = () => {
+        game.pause();
+    };
+    document.getElementById("continue").onclick = () => {
+        gameDiv.focus();
+        game.continue();
+    };
+
+    let select = document.getElementById("select-danmaku");
+    let option = document.createElement("option");
+    option.value = -1;
+    option.innerHTML = "From editor...";
+    select.appendChild(option);
+    for (let i = 0; i < Danmaku.patterns.length - 1; i++) {
+        let option = document.createElement("option");
+        option.value = i;
+        if (Danmaku.patterns[i].title != null) {
+            option.innerHTML = Danmaku.patterns[i].title;
+        } else {
+            option.innerHTML = i;
+        }
+        select.appendChild(option);
+    }
+    select.onchange = () => {
+        game.stop();
+        game.setDanmaku(select.value);
     }
 }

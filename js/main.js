@@ -74,30 +74,53 @@ class GameObject extends Sprite {
     constructor() {
         super();
         this.visible = false;
-        this.vx = 0;
-        this.vy = 0;
         this.anchor.set(0.5, 0.5);
-        this.anglev = 0;
-        this.speedv = 0;
+        this.speedv = {
+            x: 0,
+            y: 0,
+            angle: 0
+        };
+    }
+
+    get vx() {
+        return this.speedv.x;
+    }
+    set vx(value) {
+        this.speedv.x = value;
+        this.speedv.angle = atan2(this.vy, this.vx);
+    }
+
+    get vy() {
+        return this.speedv.y;
+    }
+    set vy(value) {
+        this.speedv.y = value;
+        this.speedv.angle = atan2(this.vy, this.vx);
     }
 
     get angle() {
-        return this.anglev;
+        return this.speedv.angle;
     }
     set angle(value) {
-        this.anglev = value;
+        this.speedv.angle = value;
         this.rotation = value + PI / 2;
-        this.vx = this.speed * cos(value);
-        this.vy = this.speed * sin(value);
+        let speed = this.speed;
+        this.speedv.x = speed * cos(value);
+        this.speedv.y = speed * sin(value);
     }
 
     get speed() {
-        return this.speedv;
+        return Math.sqrt(this.vx * this.vx + this.vy * this.vy);
     }
     set speed(value) {
-        this.speedv = value;
-        this.vx = value * cos(this.angle);
-        this.vy = value * sin(this.angle);
+        let speed = this.speed;
+        if (speed === 0) {
+            this.speedv.x = value * cos(this.speedv.angle);
+            this.speedv.y = value * sin(this.speedv.angle);
+        } else {
+            this.speedv.x = this.speedv.x * value / speed;
+            this.speedv.y = this.speedv.y * value / speed;
+        }
     }
 
     setPos(x, y) {
@@ -293,6 +316,14 @@ class Boss extends GameObject {
         this.animation = Boss.chars[id];
     }
 
+    hide() {
+        this.visible = false;
+    }
+
+    show() {
+        this.visible = true;
+    }
+
     playAnimation() {
         if (this.animation !== null) {
             this.animation.stop();
@@ -363,10 +394,11 @@ class Bullet extends GameObject {
         this.count = 0;
         this.visible = false;
         this.state = 0;
-        this.baseAngle = 0;
+        this.baseAngle = [];
         this.typev = 0;
         this.colorv = 0;
         this.rotate = false;
+        Bullet.textures = [];
     }
 
     get type() {
@@ -416,12 +448,7 @@ class Bullet extends GameObject {
     static setTextures(url) {
         let id = resources[url].textures;
         Bullet.textures = [];
-        let bulletNums = [16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 3, 8, 5, 5, 8, 8, 8, 8, 8, 8, 4, 8, 8, 8, 8, 8, 3, 16, 8, 16, 16, 16, 10];
-        let laserNum = 16;
         for (let i in id) {
-            if (i === "laser.png") {
-                continue;
-            }
             let ts = [];
             let index = Number(i.substr(1, i.length - 4));
             let width = id[i].width / bulletNums[index];
@@ -439,10 +466,21 @@ class Laser extends GameObject {
     constructor() {
         super();
         this.visible = false;
+        Laser.textures = [];
     }
 
     update() {
         if (this.visible) {}
+    }
+
+    static setTextures(url) {
+        let id = TextureCache[url];
+        let height = id.height / laserNum;
+        for (let i = 0; i < laserNum; i++) {
+            let rect = new Rectangle(0, height * i, id.width, height);
+            let texture = new Texture(id, rect);
+            Laser.textures.push(texture);
+        }
     }
 }
 
@@ -518,11 +556,33 @@ class Danmaku extends Container {
         return null;
     }
 
+    getLaser(color) {
+        if (color < 0 || Laser.textures.length <= color) {
+            console.error("Error: Invalid laser color");
+            return null;
+        }
+        for (let la of this.lasers) {
+            if (la.visible === false) {
+                la.visible = true;
+                return la;
+            }
+        }
+        return null;
+    }
+
     handleBullets(callbackfn) {
         this.bullets.filter(b => {
             return b.visible;
         }).forEach(b => {
             callbackfn(b);
+        });
+    }
+
+    handleLasers(callbackfn) {
+        this.lasers.filter(la => {
+            return la.visible;
+        }).forEach(la => {
+            callbackfn(la);
         });
     }
 
@@ -675,9 +735,15 @@ class Game {
     init() {
         let donefunc = null;
         loader
-            .add(["data/img/bullet/bullet.json", "data/img/player/pl0.png", "data/img/boss/boss4.png"])
+            .add([
+                "data/img/bullet/bullet.json",
+                "data/img/bullet/laser.png",
+                "data/img/player/pl0.png",
+                "data/img/boss/boss4.png"
+            ])
             .load(() => {
                 Bullet.setTextures("data/img/bullet/bullet.json");
+                Laser.setTextures("data/img/bullet/laser.png");
                 this.setPlayer(0);
                 this.setBoss(4);
                 donefunc();

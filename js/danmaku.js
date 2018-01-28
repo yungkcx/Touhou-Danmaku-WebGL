@@ -1,4 +1,5 @@
 let getBullet = game.danmaku.getBullet.bind(game.danmaku),
+    getLaser = game.danmaku.getLaser.bind(game.danmaku),
     createDanmaku = Danmaku.createPattern,
     boss = game.boss,
     player = game.player,
@@ -7,6 +8,7 @@ let getBullet = game.danmaku.getBullet.bind(game.danmaku),
     randInt = GameUtil.randInt,
     randArray = GameUtil.randArray,
     handleBullets = game.danmaku.handleBullets.bind(game.danmaku),
+    handleLasers = game.danmaku.handleBullets.bind(game.danmaku),
     putBossPhy = boss.putPhysic.bind(boss),
     randMoveBoss = boss.randMove.bind(boss),
     baseAngle = [];
@@ -316,253 +318,245 @@ let danmakuPatterns = [
             }
         });
     }),
-    // createDanmaku("「反魂蝶 -八分咲-」", function f010(t) {
-    //     const TM = 420;
-    //     const DIST = 60;
-    //     let t = t % TM,
-    //         t2 = t;
-    //     this.num = this.num | 0;
-    //     if (t2 == 0) {
-    //         this.num = 4;
-    //     }
-    //     if (t == 0) {
-    //         for (let j = 0; j < 2; j++) {
-    //             for (let i = 0; i < this.num; i++) {
-    //                 let plmn = (j ? -1 : 1);
-    //                 let la = get_laser(s, 0, j);
-    //                 if (la != null) {
-    //                     la.angle = PI2 / this.num * i + PI2 / (this.num * 2) * j + PI2 / (this.num * 4) * ((this.num + 1) % 2);
-    //                     la.startX = boss.x + cos(la.angle) * DIST;
-    //                     la.startY = boss.y + sin(la.angle) * DIST;
-    //                     la.width = 2;
-    //                     la.height = 440;
-    //                     la.state = j;
-    //                     la.lphy.conv_flag = true;
-    //                     la.lphy.conv_base_x = boss.x;
-    //                     la.lphy.conv_base_y = boss.y;
-    //                     la.lphy.conv_x = la.startX;
-    //                     la.lphy.conv_y = la.startY;
-    //                     la.lphy.angle = PI / this.num * plmn;
-    //                     la.lphy.base_angle = la.angle;
-    //                     la.lphy.time = 80;
-    //                 }
-    //             }
-    //         }
+    createDanmaku("「反魂蝶 -八分咲-」", function f010(t) {
+        const TM = 420;
+        const DIST = 60;
+        let t2 = t % TM;
+        this.num = this.num | 0;
+        if (t == 0) {
+            this.num = 4;
+        }
+        // if (t2 == 0) {
+        //     for (let j = 0; j < 2; j++) {
+        //         for (let i = 0; i < this.num; i++) {
+        //             let plmn = (j ? -1 : 1);
+        //             let la = getLaser(0, j);
+        //             if (la != null) {
+        //                 la.angle = PI2 / this.num * i + PI2 / (this.num * 2) * j + PI2 / (this.num * 4) * ((this.num + 1) % 2);
+        //                 la.startX = boss.x + cos(la.angle) * DIST;
+        //                 la.startY = boss.y + sin(la.angle) * DIST;
+        //                 la.width = 2;
+        //                 la.height2 = 440;
+        //                 la.state = j;
+        //                 la.lphy.conv_visible = true;
+        //                 la.lphy.conv_base_x = boss.x;
+        //                 la.lphy.conv_base_y = boss.y;
+        //                 la.lphy.conv_x = la.startX;
+        //                 la.lphy.conv_y = la.startY;
+        //                 la.lphy.angle = PI / this.num * plmn;
+        //                 la.lphy.baseAngle = la.angle;
+        //                 la.lphy.time = 80;
+        //             }
+        //         }
+        //     }
+        // }
+        if (t2 == 50) {
+            let angle = range(PI);
+            for (let i = 0; i < 2; i++) {
+                for (let k = 0; k < 3; k++) {
+                    for (let j = 0; j < 3; j++) {
+                        for (let m = 0; m < 40; m++) {
+                            let b = getBullet(17, i + 2);
+                            if (b != null) {
+                                b.x = boss.x;
+                                b.y = boss.y;
+                                b.angle = angle + PI2 / 40 * m + PI2 / 80 * i;
+                                b.speed = 1.8 - 0.2 * j + 0.1 * i;
+                                b.state = k;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (t2 >= 170 && t2 < 310 && (t2 - 170) % 35 == 0) {
+            let div = ((t2 - 170) % 70 == 0) ? -1 : 1;
+            let angle = range(PI);
+            for (let i = 0; i < 2; i++) {
+                for (let k = 0; k < 3; k++) {
+                    for (let m = 0; m < 40; m++) {
+                        let b = getBullet(17, 1);
+                        if (b != null) {
+                            b.x = boss.x;
+                            b.y = boss.y;
+                            b.angle = angle + PI2 / 40 * m;
+                            b.speed = 2 - 0.3 * i;
+                            b.state = 10 + k;
+                            b.baseAngle[0] = PI / 400 * div;
+                        }
+                    }
+                }
 
-    //     }
-    //     if (t == 50) {
-    //         let angle = range(PI);
-    //         for (let i = 0; i < 2; i++) {
-    //             for (let k = 0; k < 3; k++) {
-    //                 for (let j = 0; j < 3; j++) {
-    //                     for (let m = 0; m < 40; m++) {
-    //                         let b = getBullet(11, i);
-    //                         if (b != null) {
-    //                             b.x = boss.x;
-    //                             b.y = boss.y;
-    //                             b.angle = angle + PI2 / 40 * m + PI2 / 80 * i;
-    //                             b.speed = 1.8 - 0.2 * j + 0.1 * i;
-    //                             b.state = k;
-    //                         }
+            }
+        }
+        if (t2 == 360) {
+            let angle = range(PI);
+            for (let k = 0; k < 3; k++) {
+                for (let m = 0; m < 40; m++) {
+                    let b = getBullet(21, 0);
+                    if (b != null) {
+                        b.x = boss.x;
+                        b.y = boss.y;
+                        b.angle = angle + PI2 / 40 * m;
+                        b.speed = 1.8;
+                        b.state = 20 + k;
+                    }
+                }
+            }
+        }
+        handleBullets(b => {
+            let count = b.count;
+            let state = b.state;
+            switch (state % 10) {
+                case 0:
+                    if (count > 90 && count <= 100) {
+                        b.speed -= b.speed / 220;
+                    }
+                    break;
+                case 1:
+                    if (count > 50) {
+                        b.speed += b.speed / 45;
+                    }
+                    break;
+                case 2:
+                    if (count > 65) {
+                        b.speed += b.speed / 90;
+                    }
+                    break;
+            }
+            if (10 <= state && state <= 12 && count > 15 && count <= 80) {
+                b.angle += b.baseAngle[0];
+            }
+        });
+        // handleLasers(la => {
+        //     let count = la.count;
+        //     let state = la.state;
+        //     if (state == 0 || state == 1) {
+        //         if (count == 80) {
+        //             la.width = 20;
+        //         } else if (count >= 260 && count <= 290) {
+        //             la.width = 10 * (30 - (count - 260)) / 30;
+        //             if (count == 290) {
+        //                 la.visible = false;
+        //             }
+        //         }
+        //     }
+        // });
+        if (t2 == TM - 1) {
+            this.num++;
+            if (this.num > 8) {
+                this.num = 4;
+            }
+        }
+    }),
+    createDanmaku("秘弹「之后就一个人都没有了吗？」", function f011(t) {
+        const TM = 170;
+        const NSTATE = 5;
+        let t1 = t % TM,
+            t3 = t % (TM * 5);
+        this.num = this.num | 0;
+        if (t == 0) {
+            this.num = 0;
+        }
+        if (t == 60) {
+            boss.hide();
+        }
+        if (t1 == 0 && (0 <= t3 && t3 < TM * 3)) {
+            const DNUMX = 20;
+            let xlen = FMX / DNUMX;
+            let dnumy = Math.floor(FMY / xlen);
+            let ylen = FMY / dnumy;
+            let x = 0,
+                y = 0,
+                angle = 0;
+            for (let j = 0; j < 4; j++) {
+                let to = j % 2 ? dnumy : DNUMX;
+                x += cos(angle) * xlen;
+                y += sin(angle) * ylen;
+                for (let i = 0; i < to - 1; i++) {
+                    let b = getBullet(2, 0);
+                    if (b != null) {
+                        b.x = x;
+                        b.y = y;
+                        switch (this.num) {
+                            case 0:
+                                b.color = 2;
+                                b.angle = b.atan2xy(FMX / 2, FMY / 2);
+                                b.speed = 1.3;
+                                b.state = 0;
+                                break;
+                            case 1:
+                                b.color = 4;
+                                b.angle = b.atan2xy(FMX / 2, FMY / 2);
+                                b.speed = 1.4 + ((j % 2 ? -1 : 1) * ((cos(PI2 / to * i - PI) + 1) / 2)) * 0.4;
+                                b.state = 1;
+                                break;
+                            case 2:
+                                b.color = 13;
+                                b.angle = b.atan2xy(FMX / 2, FMY / 2);
+                                b.speed = 1.3;
+                                b.state = 2;
+                                b.baseAngle[0] = PI / 1000 * (j % 2 ? -1 : 1) * ((cos(PI2 / to * i - PI) + 1) / 2);
+                                break;
+                            default:
+                                break;
+                        }
 
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     if (t >= 170 && t < 310 && (t - 170) % 35 == 0) {
-    //         let div = ((t - 170) % 70 == 0) ? -1 : 1;
-    //         let angle = range(PI);
-    //         for (let i = 0; i < 2; i++) {
-    //             for (let k = 0; k < 3; k++) {
-    //                 for (let m = 0; m < 40; m++) {
-    //                     let b = getBullet(11, 2);
-    //                     if (b != null) {
-    //                         b.x = boss.x;
-    //                         b.y = boss.y;
-    //                         b.angle = angle + PI2 / 40 * m;
-    //                         b.speed = 2 - 0.3 * i;
-    //                         b.state = 10 + k;
-    //                         b.base_angle[0] = PI / 400 * div;
-    //                     }
-    //                 }
-    //             }
+                    }
+                    x += cos(angle) * xlen;
+                    y += sin(angle) * ylen;
+                }
+                angle += PI / 2;
+            }
+        } else if (t1 == 0 && (TM * 3 <= t3 && t3 < TM * NSTATE)) {
+            const DNUMX = 12;
+            let xlen = FMX / DNUMX;
+            let dnumy = Math.floor(FMY / xlen);
+            let ylen = FMY / dnumy;
+            let x = 0,
+                y = 0,
+                angle = 0;
+            for (let j = 0; j < 4; j++) {
+                let to = j % 2 ? dnumy : DNUMX;
+                for (let i = 0; i < to; i++) {
+                    for (let k = 0; k < 2; k++) {
+                        let b = getBullet(2, 0);
+                        if (b != null) {
+                            b.x = x;
+                            b.y = y;
+                            switch (this.num) {
+                                case 3:
+                                    b.color = 6;
+                                    b.angle = angle + PI / 2;
+                                    b.speed = 1.1 + 0.5 * k;
+                                    b.state = 3;
+                                    break;
+                                case 4:
+                                    b.color = 8;
+                                    b.angle = angle + PI / 2 - PI / 14 + PI / 7 * k;
+                                    b.speed = 1.3;
+                                    b.state = 4;
+                                default:
+                                    break;
+                            }
 
-    //         }
-    //     }
-    //     if (t == 360) {
-    //         let angle = range(PI);
-    //         for (let k = 0; k < 3; k++) {
-    //             for (let m = 0; m < 40; m++) {
-    //                 let b = getBullet(0, 1);
-    //                 if (b != null) {
-    //                     b.x = boss.x;
-    //                     b.y = boss.y;
-    //                     b.angle = angle + PI2 / 40 * m;
-    //                     b.speed = 1.8;
-    //                     b.state = 20 + k;
-    //                 }
-    //             }
-    //         }
-
-    //     }
-    //     handleBullets(b => {
-    //         if (b.flag == true) {
-    //             let count = b.count;
-    //             let state = b.state;
-    //             switch (state % 10) {
-    //                 case 0:
-    //                     if (count > 90 && count <= 100) {
-    //                         b.speed -= b.speed / 220;
-    //                     }
-    //                     break;
-    //                 case 1:
-    //                     if (count > 50) {
-    //                         b.speed += b.speed / 45;
-    //                     }
-    //                     break;
-    //                 case 2:
-    //                     if (count > 65) {
-    //                         b.speed += b.speed / 90;
-    //                     }
-    //                     break;
-    //             }
-    //             if (10 <= state && state <= 12 && count > 15 && count <= 80) {
-    //                 b.angle += b.base_angle[0];
-    //             }
-    //         }
-    //     });
-    //     s.laser.forEach(la => {
-    //         if (la.flag == true) {
-    //             let count = la.count;
-    //             let state = la.state;
-    //             if (state == 0 || state == 1) {
-    //                 if (count == 80) {
-    //                     la.width = 20;
-    //                 } else if (count >= 260 && count <= 290) {
-    //                     la.width = 10 * (30 - (count - 260)) / 30;
-    //                     if (count == 290) {
-    //                         la.flag = false;
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     });
-    //     if (t == TM - 1) {
-    //         this.num++;
-    //         if (this.num > 8) {
-    //             this.num = 4;
-    //         }
-    //     }
-    // }),
-    // createDanmaku(function f011(t) {
-    //     const TM = 170;
-    //     const NSTATE = 5;
-    //     let t = t % TM,
-    //         t2 = t,
-    //         t3 = t % (TM * 5);
-    //     this.num = this.num | 0;
-    //     if (t2 == 0) {
-    //         this.num = 0;
-    //     }
-    //     if (t == 0 && (0 <= t3 && t3 < TM * 3)) {
-    //         const DNUMX = 20;
-    //         let xlen = FMX / DNUMX;
-    //         let dnumy = Math.floor(FMY / xlen);
-    //         let ylen = FMY / dnumy;
-    //         let x = 0,
-    //             y = 0,
-    //             angle = 0;
-    //         for (let j = 0; j < 4; j++) {
-    //             let to = j % 2 ? dnumy : DNUMX;
-    //             x += cos(angle) * xlen;
-    //             y += sin(angle) * ylen;
-    //             for (let i = 0; i < to - 1; i++) {
-    //                 let b = getBullet(4, 0);
-    //                 if (b != null) {
-    //                     b.x = x;
-    //                     b.y = y;
-    //                     switch (this.num) {
-    //                         case 0:
-    //                             b.color = 0;
-    //                             b.angle = bulletatan(b, FMX / 2, FMY / 2);
-    //                             b.speed = 1.3;
-    //                             b.state = 0;
-    //                             break;
-    //                         case 1:
-    //                             b.color = 3;
-    //                             b.angle = bulletatan(b, FMX / 2, FMY / 2);
-    //                             b.speed = 1.4 + ((j % 2 ? -1 : 1) * ((cos(PI2 / to * i - PI) + 1) / 2)) * 0.4;
-    //                             b.state = 1;
-    //                             break;
-    //                         case 2:
-    //                             b.color = 6;
-    //                             b.angle = bulletatan(b, FMX / 2, FMY / 2);
-    //                             b.speed = 1.3;
-    //                             b.state = 2;
-    //                             b.base_angle[0] = PI / 1000 * (j % 2 ? -1 : 1) * ((cos(PI2 / to * i - PI) + 1) / 2);
-    //                             break;
-    //                         default:
-    //                             break;
-    //                     }
-
-    //                 }
-    //                 x += cos(angle) * xlen;
-    //                 y += sin(angle) * ylen;
-    //             }
-    //             angle += PI / 2;
-    //         }
-    //     } else if (t == 0 && (TM * 3 <= t3 && t3 < TM * NSTATE)) {
-    //         const DNUMX = 12;
-    //         let xlen = FMX / DNUMX;
-    //         let dnumy = Math.floor(FMY / xlen);
-    //         let ylen = FMY / dnumy;
-    //         let x = 0,
-    //             y = 0,
-    //             angle = 0;
-    //         for (let j = 0; j < 4; j++) {
-    //             let to = j % 2 ? dnumy : DNUMX;
-    //             for (let i = 0; i < to; i++) {
-    //                 for (let k = 0; k < 2; k++) {
-    //                     let b = getBullet(4, 0);
-    //                     if (b != null) {
-    //                         b.x = x;
-    //                         b.y = y;
-    //                         switch (this.num) {
-    //                             case 3:
-    //                                 b.color = 0;
-    //                                 b.angle = angle + PI / 2;
-    //                                 b.speed = 1.1 + 0.5 * k;
-    //                                 b.state = 3;
-    //                                 break;
-    //                             case 4:
-    //                                 b.color = 3;
-    //                                 b.angle = angle + PI / 2 - PI / 14 + PI / 7 * k;
-    //                                 b.speed = 1.3;
-    //                                 b.state = 4;
-    //                             default:
-    //                                 break;
-    //                         }
-
-    //                     }
-    //                 }
-    //                 x += cos(angle) * xlen;
-    //                 y += sin(angle) * ylen;
-    //             }
-    //             angle += PI / 2;
-    //         }
-    //     }
-    //     handleBullets(b => {
-    //         if (b.flag == true) {
-    //             if (b.state == 2) {
-    //                 b.angle += b.base_angle[0];
-    //             }
-    //         }
-    //     });
-    //     if (t == TM - 1) {
-    //         this.num = (this.num + 1) % NSTATE;
-    //     }
-    // }),
+                        }
+                    }
+                    x += cos(angle) * xlen;
+                    y += sin(angle) * ylen;
+                }
+                angle += PI / 2;
+            }
+        }
+        handleBullets(b => {
+            if (b.state == 2) {
+                b.angle += b.baseAngle[0];
+            }
+        });
+        if (t1 == TM - 1) {
+            this.num = (this.num + 1) % NSTATE;
+        }
+    }),
     // createDanmaku("梦符「梦我梦中」", function f(t) {
     //     const TM = 600;
     //     const NLSBULLET = 48;
@@ -598,7 +592,7 @@ let danmakuPatterns = [
     //         }
     //     }
     //     s.lsbullet.forEach(lb => {
-    //         if (lb.flag == true && lb.state < 3) {
+    //         if (lb.visible == true && lb.state < 3) {
     //             if (lb.x < 0 || lb.x > FMX || lb.y < 0 || lb.y > FMY) {
     //                 let lb2 = get_lsbullet(s, 0, 0);
     //                 if (lb2 != null) {
@@ -625,7 +619,7 @@ let danmakuPatterns = [
     //         }
     //     });
     //     handleBullets(b => {
-    //         if (b.flag == true && b.state == 1) {
+    //         if (b.visible == true && b.state == 1) {
     //             if (b.x < 0 || b.x > FMX || b.y < 0) {
     //                 b.state = 0;
     //                 if (b.x < 0 || b.x > FMX) {

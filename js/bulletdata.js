@@ -35,3 +35,4 @@ let bulletNums = [
     10
 ];
 let laserNum = 16;
+let laserSourceId = 12;

@@ -3,12 +3,11 @@ let getBullet = game.danmaku.getBullet.bind(game.danmaku),
     createDanmaku = Danmaku.createPattern,
     boss = game.boss,
     player = game.player,
-    bossAtan2pl = boss.atan2obj.bind(boss, player),
     range = GameUtil.rangeAngle,
     randInt = GameUtil.randInt,
     randArray = GameUtil.randArray,
     handleBullets = game.danmaku.handleBullets.bind(game.danmaku),
-    handleLasers = game.danmaku.handleBullets.bind(game.danmaku),
+    handleLasers = game.danmaku.handleLasers.bind(game.danmaku),
     putBossPhy = boss.putPhysic.bind(boss),
     randMoveBoss = boss.randMove.bind(boss),
     baseAngle = [];
@@ -20,7 +19,7 @@ let danmakuPatterns = [
             if (b == null) {
                 return;
             }
-            b.angle = bossAtan2pl();
+            b.angle = boss.angleTo(player);
             b.speed = 3;
             b.x = boss.x;
             b.y = boss.y;
@@ -52,7 +51,7 @@ let danmakuPatterns = [
     }),
     createDanmaku(function f002(t) {
         if (t >= 0 && t < 120 && t % 20 == 0) {
-            let angle = bossAtan2pl();
+            let angle = boss.angleTo(player);
             for (let i = 0; i < 20; i++) {
                 let b = getBullet(0, 0);
                 if (b != null) {
@@ -68,7 +67,7 @@ let danmakuPatterns = [
         if (t >= 0 && t < 120 && t % 2 == 0) {
             let b = getBullet(0, 0);
             if (b != null) {
-                b.angle = bossAtan2pl() + range(PI / 4);
+                b.angle = boss.angleTo(player) + range(PI / 4);
                 b.x = boss.x;
                 b.y = boss.y;
                 b.speed = 3 + range(1.5);
@@ -79,7 +78,7 @@ let danmakuPatterns = [
         if (t >= 0 && t < 120 && t % 2 == 0) {
             let b = getBullet(0, 0);
             if (b != null) {
-                b.angle = bossAtan2pl() + range(PI / 4);
+                b.angle = boss.angleTo(player) + range(PI / 4);
                 b.x = boss.x;
                 b.y = boss.y;
                 b.speed = 4 + range(2);
@@ -97,7 +96,7 @@ let danmakuPatterns = [
             putBossPhy(FMX / 2, FMY / 2, 50);
         }
         if (t % 10 == 0 && t >= 50) {
-            let angle = bossAtan2pl();
+            let angle = boss.angleTo(player);
             for (let i = 0; i < NBULLET; i++) {
                 let b = getBullet(8, 1);
                 if (b != null) {
@@ -119,7 +118,7 @@ let danmakuPatterns = [
             this.cnum = 0;
         }
         if (t2 == 0) {
-            baseAngle[0] = bossAtan2pl();
+            baseAngle[0] = boss.angleTo(player);
             if (this.cnum % 2 == 0) {
                 randMoveBoss(40, 30, FMX - 40, 120, 60, 60);
             }
@@ -128,7 +127,7 @@ let danmakuPatterns = [
             baseAngle[0] += PI2 / 20 / 2;
         }
         if (t2 % (TM1 / 10) == 0) {
-            angle = bossAtan2pl();
+            angle = boss.angleTo(player);
             for (let i = 0; i < 20; i++) {
                 let b = getBullet(3, 8);
                 if (b != null) {
@@ -173,7 +172,7 @@ let danmakuPatterns = [
             }
         }
         if (t2 > 210 && t2 < 270 && t2 % 3 == 0) {
-            let angle = bossAtan2pl();
+            let angle = boss.angleTo(player);
             for (let i = 0; i < 7; i++) {
                 let b = getBullet(2, 5);
                 if (b != null) {
@@ -220,12 +219,12 @@ let danmakuPatterns = [
             this.cnum = 0;
         }
         if (t2 == 0) {
-            baseAngle[0] = bossAtan2pl();
+            baseAngle[0] = boss.angleTo(player);
             this.cnt = 0;
             this.tcnt = 2;
         }
         if (t2 < 540 && t2 % 3 != 0) {
-            let angle = bossAtan2pl();
+            let angle = boss.angleTo(player);
             if (this.tcnt - 2 == this.cnt || this.tcnt - 1 == this.cnt) {
                 if (this.tcnt - 1 == this.cnt) {
                     baseAngle[1] = baseAngle[0] + PI2 / DF1 * this.cnt * coef - PI2 / (DF1 * 6) * 3;
@@ -309,12 +308,10 @@ let danmakuPatterns = [
                 if (b.count < 150) {
                     b.vy += 0.03;
                 }
-                b.angle = atan2(b.vy, b.vx);
             } else if (b.state == 1) {
                 if (b.count < 160) {
                     b.vy += 0.03;
                 }
-                b.angle = atan2(b.vy, b.vx);
             }
         });
     }),
@@ -326,30 +323,22 @@ let danmakuPatterns = [
         if (t == 0) {
             this.num = 4;
         }
-        // if (t2 == 0) {
-        //     for (let j = 0; j < 2; j++) {
-        //         for (let i = 0; i < this.num; i++) {
-        //             let plmn = (j ? -1 : 1);
-        //             let la = getLaser(0, j);
-        //             if (la != null) {
-        //                 la.angle = PI2 / this.num * i + PI2 / (this.num * 2) * j + PI2 / (this.num * 4) * ((this.num + 1) % 2);
-        //                 la.startX = boss.x + cos(la.angle) * DIST;
-        //                 la.startY = boss.y + sin(la.angle) * DIST;
-        //                 la.width = 2;
-        //                 la.height2 = 440;
-        //                 la.state = j;
-        //                 la.lphy.conv_visible = true;
-        //                 la.lphy.conv_base_x = boss.x;
-        //                 la.lphy.conv_base_y = boss.y;
-        //                 la.lphy.conv_x = la.startX;
-        //                 la.lphy.conv_y = la.startY;
-        //                 la.lphy.angle = PI / this.num * plmn;
-        //                 la.lphy.baseAngle = la.angle;
-        //                 la.lphy.time = 80;
-        //             }
-        //         }
-        //     }
-        // }
+        if (t2 == 0) {
+            for (let j = 0; j < 2; j++) {
+                for (let i = 0; i < this.num; i++) {
+                    let coef = (j ? -1 : 1);
+                    let la = getLaser(j ? 4 : 8);
+                    if (la != null) {
+                        la.angle = PI2 / this.num * i + PI2 / (this.num * 2) * j + PI2 / (this.num * 4) * ((this.num + 1) % 2);
+                        la.startX = boss.x + cos(la.angle) * DIST;
+                        la.startY = boss.y + sin(la.angle) * DIST;
+                        la.thickness = 1;
+                        la.length = 480;
+                        la.rotateAroundPoint(boss.x, boss.y, PI / this.num * coef, 80);
+                    }
+                }
+            }
+        }
         if (t2 == 50) {
             let angle = range(PI);
             for (let i = 0; i < 2; i++) {
@@ -428,23 +417,20 @@ let danmakuPatterns = [
                 b.angle += b.baseAngle[0];
             }
         });
-        // handleLasers(la => {
-        //     let count = la.count;
-        //     let state = la.state;
-        //     if (state == 0 || state == 1) {
-        //         if (count == 80) {
-        //             la.width = 20;
-        //         } else if (count >= 260 && count <= 290) {
-        //             la.width = 10 * (30 - (count - 260)) / 30;
-        //             if (count == 290) {
-        //                 la.visible = false;
-        //             }
-        //         }
-        //     }
-        // });
+        handleLasers(la => {
+            let count = la.count;
+            if (80 < count && count <= 85) {
+                la.thickness = 20 + 10 * (count - 80) / 10;
+            } else if (260 <= count && count <= 290) {
+                la.thickness = 30 * (30 - (count - 260)) / 30;
+                if (count == 290) {
+                    la.hide();
+                }
+            }
+        });
         if (t2 == TM - 1) {
             this.num++;
-            if (this.num > 8) {
+            if (this.num > 10) {
                 this.num = 4;
             }
         }
@@ -481,19 +467,19 @@ let danmakuPatterns = [
                         switch (this.num) {
                             case 0:
                                 b.color = 2;
-                                b.angle = b.atan2xy(FMX / 2, FMY / 2);
+                                b.angle = b.angleTo(FMX / 2, FMY / 2);
                                 b.speed = 1.3;
                                 b.state = 0;
                                 break;
                             case 1:
                                 b.color = 4;
-                                b.angle = b.atan2xy(FMX / 2, FMY / 2);
+                                b.angle = b.angleTo(FMX / 2, FMY / 2);
                                 b.speed = 1.4 + ((j % 2 ? -1 : 1) * ((cos(PI2 / to * i - PI) + 1) / 2)) * 0.4;
                                 b.state = 1;
                                 break;
                             case 2:
                                 b.color = 13;
-                                b.angle = b.atan2xy(FMX / 2, FMY / 2);
+                                b.angle = b.angleTo(FMX / 2, FMY / 2);
                                 b.speed = 1.3;
                                 b.state = 2;
                                 b.baseAngle[0] = PI / 1000 * (j % 2 ? -1 : 1) * ((cos(PI2 / to * i - PI) + 1) / 2);
@@ -557,83 +543,90 @@ let danmakuPatterns = [
             this.num = (this.num + 1) % NSTATE;
         }
     }),
-    // createDanmaku("梦符「梦我梦中」", function f(t) {
-    //     const TM = 600;
-    //     const NLSBULLET = 48;
-    //     const INTERVAL = 2;
-    //     const TM2 = NLSBULLET * INTERVAL;
-    //     let t = t % TM;
-    //     this.motoarr = this.motoarr || null;
-    //     if (t == 0) {
-    //         this.motoarr = randArray(NLSBULLET, 4);
-    //         s.basex = player.x;
-    //         s.basey = player.y;
-    //     }
-    //     if (t < TM2 && t % INTERVAL == 0) {
-    //         let i = Math.floor(t / INTERVAL);
-    //         let angle = PI2 / NLSBULLET * this.motoarr[i];
-    //         let lb = get_lsbullet(s, 0, 0);
-    //         if (lb != null) {
-    //             lb.x = s.basex + cos(angle) * 60;
-    //             lb.y = s.basey + sin(angle) * 60;
-    //             lb.angle = bulletatan(lb, s.basex, s.basey) + PI2 / 18;
-    //             lb.speed = 3.4;
-    //             lb.width = 10;
-    //             lb.height = 180;
-    //             lb.state = 0;
-    //         }
-    //         let b = getBullet(1, 1);
-    //         if (b != null) {
-    //             b.x = s.basex + cos(angle) * 60;
-    //             b.y = s.basey + sin(angle) * 60;
-    //             b.speed = 1.5;
-    //             b.angle = bulletatan(lb, s.basex, s.basey) + PI2 / 18 + PI;
-    //             b.state = 1;
-    //         }
-    //     }
-    //     s.lsbullet.forEach(lb => {
-    //         if (lb.visible == true && lb.state < 3) {
-    //             if (lb.x < 0 || lb.x > FMX || lb.y < 0 || lb.y > FMY) {
-    //                 let lb2 = get_lsbullet(s, 0, 0);
-    //                 if (lb2 != null) {
-    //                     if (lb.x < 0 || lb.x > FMX) {
-    //                         lb2.x = lb.x < 0 ? 0 : FMX;
-    //                         lb2.y = lb.y;
-    //                         if (lb.angle <= PI) {
-    //                             lb2.angle = PI - lb.angle;
-    //                         } else {
-    //                             lb2.angle = PI * 3 - lb.angle;
-    //                         }
-    //                     } else if (lb.y < 0 || lb.y > FMY) {
-    //                         lb2.x = lb.x;
-    //                         lb2.y = lb.y < 0 ? 0 : FMY;
-    //                         lb2.angle = PI2 - lb.angle;
-    //                     }
-    //                     lb2.speed = lb.speed;
-    //                     lb2.width = lb.width;
-    //                     lb2.height = lb.height;
-    //                     lb2.state = lb.state + 1;
-    //                 }
-    //                 lb.state = 4;
-    //             }
-    //         }
-    //     });
-    //     handleBullets(b => {
-    //         if (b.visible == true && b.state == 1) {
-    //             if (b.x < 0 || b.x > FMX || b.y < 0) {
-    //                 b.state = 0;
-    //                 if (b.x < 0 || b.x > FMX) {
-    //                     if (b.angle <= PI) {
-    //                         b.angle = PI - b.angle;
-    //                     } else {
-    //                         b.angle = PI * 3 - b.angle;
-    //                     }
-    //                 } else if (b.y < 0) {
-    //                     b.angle = PI2 - b.angle;
-    //                 }
-    //             }
-    //         }
-    //     });
-    // }),
+    createDanmaku("梦符「梦我梦中」", function f(t) {
+        const TM = 800;
+        const DIST = 70;
+        const NLASER = 48;
+        const INTERVAL = 2;
+        const TM2 = NLASER * INTERVAL;
+        let t2 = t % TM;
+        this.motoarr = this.motoarr || null;
+        this.basex = this.basex || null;
+        this.basey = this.basey || null;
+        if (t2 == 0) {
+            this.motoarr = randArray(NLASER, 4);
+            this.basex = player.x;
+            this.basey = player.y;
+        }
+        if (t2 < TM2 && t2 % INTERVAL == 0) {
+            let i = Math.floor(t2 / INTERVAL);
+            let angle = PI2 / NLASER * this.motoarr[i];
+            let la = getLaser(5);
+            if (la != null) {
+                la.isInLaunch = true;
+                la.startX = this.basex + cos(angle) * DIST;
+                la.startY = this.basey + sin(angle) * DIST;
+                la.angle = la.angleTo(this.basex, this.basey) + PI2 / 18;
+                la.speed = 3;
+                la.thickness = 15;
+                la.maxLength = 180;
+                la.state = 0;
+                let b = getBullet(2, 6);
+                if (b != null) {
+                    b.x = la.startX;
+                    b.y = la.startY;
+                    b.speed = 1.5;
+                    b.angle = la.angle + PI;
+                    b.state = 1;
+                }
+            }
+        }
+        handleBullets(b => {
+            if (b.visible == true && b.state == 1) {
+                if (b.x < 0 || b.x > FMX || b.y < 0) {
+                    b.state = 0;
+                    if (b.x < 0 || b.x > FMX) {
+                        if (b.angle <= PI) {
+                            b.angle = PI - b.angle;
+                        } else {
+                            b.angle = PI * 3 - b.angle;
+                        }
+                    } else if (b.y < 0) {
+                        b.angle = PI2 - b.angle;
+                    }
+                }
+            }
+        });
+        handleLasers(la => {
+            if (la.state < 3) {
+                let pt = la.center;
+                if (pt.x < 0 || pt.x > FMX || pt.y < 0 || pt.y > FMY) {
+                    let la2 = getLaser(0);
+                    la2.color = la.color;
+                    la2.isInLaunch = true;
+                    if (la2 != null) {
+                        if (pt.x < 0 || FMX < pt.x) {
+                            la2.startX = pt.x < 0 ? 0 : FMX;
+                            la2.startY = pt.y;
+                            if (la.angle <= PI) {
+                                la2.angle = PI - la.angle;
+                            } else {
+                                la2.angle = PI * 3 - la.angle;
+                            }
+                        } else if (pt.y < 0 || FMY < pt.y) {
+                            la2.startX = pt.x;
+                            la2.startY = pt.y < 0 ? 0 : FMY;
+                            la2.angle = PI2 - la.angle;
+                        }
+                        la2.speed = la.speed;
+                        la2.thickness = la.thickness;
+                        la2.maxLength = la.maxLength;
+                        la2.state = la.state + 1;
+                    }
+                    la.state = 3;
+                }
+            }
+        });
+    }),
     createDanmaku("nothing", t => {}),
 ];

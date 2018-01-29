@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 const FMX = 500; // Maximum field x
 const FMY = 583; // Maximum field y
@@ -87,7 +87,7 @@ class GameObject extends Sprite {
     }
     set vx(value) {
         this.speedv.x = value;
-        this.speedv.angle = atan2(this.vy, this.vx);
+        this.angle = atan2(this.vy, this.vx);
     }
 
     get vy() {
@@ -95,13 +95,14 @@ class GameObject extends Sprite {
     }
     set vy(value) {
         this.speedv.y = value;
-        this.speedv.angle = atan2(this.vy, this.vx);
+        this.angle = atan2(this.vy, this.vx);
     }
 
     get angle() {
         return this.speedv.angle;
     }
     set angle(value) {
+        value %= PI2;
         this.speedv.angle = value;
         this.rotation = value + PI / 2;
         let speed = this.speed;
@@ -127,12 +128,16 @@ class GameObject extends Sprite {
         this.position.set(x, y);
     }
 
-    atan2xy(x, y) {
-        return atan2(y - this.y, x - this.x);
-    }
-
-    atan2obj(obj) {
-        return atan2(obj.y - this.y, obj.x - this.x);
+    // Return the angle of this and (x, y) or another GameObject instance.
+    angleTo(xOrObj, y) {
+        if (arguments.length === 1 && typeof xOrObj === "object") {
+            let obj = xOrObj;
+            return atan2(obj.y - this.y, obj.x - this.x);
+        } else if (arguments.length === 2 && typeof xOrObj === "number") {
+            let x = xOrObj;
+            return atan2(y - this.y, x - this.x);
+        }
+        return 0;
     }
 
     move() {
@@ -158,6 +163,14 @@ class Player extends GameObject {
             right: 4
         };
         Player.chars = [];
+    }
+
+    hide() {
+        this.visible = false;
+    }
+
+    show() {
+        this.visible = true;
     }
 
     reset() {
@@ -392,9 +405,8 @@ class Bullet extends GameObject {
     constructor() {
         super();
         this.count = 0;
-        this.visible = false;
         this.state = 0;
-        this.baseAngle = [];
+        this.baseAngle = [0, 0, 0, 0, 0];
         this.typev = 0;
         this.colorv = 0;
         this.rotate = false;
@@ -431,18 +443,16 @@ class Bullet extends GameObject {
     }
 
     update() {
-        if (this.visible) {
-            sum++;
-            this.move();
-            if (this.rotate) {
-                this.rotation = PI2 * (this.count % 120) / 120;
-            }
-            if (this.x < -50 || this.x > FMX + 50 || this.y < -50 || this.y > FMY + 50) {
-                this.visible = false;
-                sum--;
-            }
-            this.count++;
+        sum++;
+        this.move();
+        if (this.rotate) {
+            this.rotation = PI2 * (this.count % 120) / 120;
         }
+        if (this.x < -50 || this.x > FMX + 50 || this.y < -50 || this.y > FMY + 50) {
+            this.visible = false;
+            sum--;
+        }
+        this.count++;
     }
 
     static setTextures(url) {
@@ -464,13 +474,160 @@ class Bullet extends GameObject {
 
 class Laser extends GameObject {
     constructor() {
-        super();
-        this.visible = false;
         Laser.textures = [];
+        super();
+        this.hasSource = false;
+        this.isInLaunch = false;
+        this.colorv = 0;
+        this.maxLength = 0;
+        this.count = 0;
+        this.physic = {
+            on: false,
+            startX: 0,
+            startY: 0,
+            baseX: 0,
+            baseY: 0,
+            angle: 0,
+            baseAngle: 0,
+            time: 0,
+            count: 0
+        };
+        this.source = new Sprite();
+        this.source.anchor.set(0.5, 0.5);
+        this.source.width = 40;
+        this.source.height = 40;
+        this.addChild(this.source);
+        this.alpha = 1;
+        this.anchor.set(0, 0.5);
+    }
+
+    get angle() {
+        return super.angle;
+    }
+    set angle(value) {
+        super.angle = value;
+        this.rotation = value;
+    }
+
+    get startX() {
+        return this.x;
+    }
+    set startX(value) {
+        this.x = value;
+        this.source.x = value;
+    }
+
+    get startY() {
+        return this.y;
+    }
+    set startY(value) {
+        this.y = value;
+        this.source.y = value;
+    }
+
+    // Return the center (x, y) of the laser.
+    get center() {
+        let x = this.startX + this.length / 2 * cos(this.angle);
+        let y = this.startY + this.length / 2 * sin(this.angle);
+        return {
+            x: x,
+            y: y
+        };
+    }
+
+    get length() {
+        return this.width;
+    }
+    set length(value) {
+        this.width = value;
+    }
+
+    get thickness() {
+        return this.height;
+    }
+    set thickness(value) {
+        this.height = value;
+    }
+
+    get color() {
+        return this.colorv;
+    }
+    set color(value) {
+        this.colorv = value;
+        this.texture = Laser.textures[value];
+        this.source.texture = Bullet.textures[laserSourceId][Math.floor((value % 15 + 1) / 2)];
+    }
+
+    hide() {
+        this.visible = false;
+        this.source.visible = false;
+    }
+
+    show() {
+        this.visible = true;
+    }
+
+    // Set the laser to rotate around about angle radians the fiyed point (y, y).
+    rotateAroundPoint(x, y, angle, t) {
+        this.physic.on = true;
+        this.physic.startX = this.startX;
+        this.physic.startY = this.startY;
+        this.physic.baseX = x;
+        this.physic.baseY = y;
+        this.physic.angle = angle;
+        this.physic.time = t;
+        this.physic.count = 0;
+        this.physic.baseAngle = this.angle;
+    }
+
+    calcPhysic() {
+        let phy = this.physic;
+        if (phy.count > phy.time) {
+            phy.on = false;
+        }
+        let ymax = phy.angle;
+        let ty = phy.time;
+        let t = phy.count;
+        let delt = 2 * ymax * t / ty - ymax * t * t / (ty * ty);
+        if (ty > 0) {
+            this.angle = phy.baseAngle + delt;
+        }
+        ((x0, y0, mx, my, angle) => {
+            let ox = x0 - mx,
+                oy = y0 - my;
+            this.startX = ox * Math.cos(angle) + oy * Math.sin(angle);
+            this.startY = -ox * Math.sin(angle) + oy * Math.cos(angle);
+            this.startX += mx;
+            this.startY += my;
+        })(phy.startX, phy.startY, phy.baseX, phy.baseY, -delt);
+        phy.count++;
     }
 
     update() {
-        if (this.visible) {}
+        if (this.isInLaunch) {
+            this.hasSource = true;
+            this.length += this.speed;
+            if (this.length >= this.maxLength) {
+                this.length = this.maxLength;
+                this.isInLaunch = false;
+                this.hasSource = false;
+            }
+        } else {
+            this.move();
+        }
+        if (this.physic.on) {
+            this.calcPhysic();
+        }
+        if (this.hasSource) {
+            this.source.visible = true;
+        } else {
+            this.source.visible = false;
+        }
+        if (this.startX < -this.length / 2 || this.startX > FMX + this.length / 2 ||
+            this.startY < -this.length / 2 || this.startY > FMY + this.length / 2) {
+            this.hide();
+        }
+        this.count++;
     }
 
     static setTextures(url) {
@@ -490,6 +647,7 @@ class Danmaku extends Container {
         Danmaku.layerData = [
             [25, 26, 33],
             [21],
+            [],
             [12, 16, 20, 22],
             [15, 17, 18, 19, 23, 24, 29],
             [1, 2, 10, 13, 14],
@@ -497,14 +655,15 @@ class Danmaku extends Container {
             [30, 31, 32],
             [27],
         ];
-        super();
+        Danmaku.laserLayer = 2;
         const MAX_BULLET = 6000;
         const MAX_LASER = 200;
+        super();
         this.bulletLayers = [];
         this.pattern = null;
         this.bullets = [];
         this.lasers = [];
-        for (let i = 0; i < Danmaku.layerData.length; i++) {
+        for (let i = 0; i < Danmaku.layerData.length + 1; i++) { // +1 for the laser layer.
             let container = new Container();
             this.bulletLayers.push(container);
             this.addChild(container);
@@ -514,8 +673,17 @@ class Danmaku extends Container {
             this.bullets.push(b);
         }
         for (let i = 0; i < MAX_LASER; i++) {
-            this.lasers.push(new Laser());
+            let la = new Laser();
+            this.lasers.push(la);
+            this.bulletLayers[Danmaku.laserLayer].addChild(la);
         }
+        this.lasers.forEach(la => {
+            this.bulletLayers[Danmaku.laserLayer].addChild(la.source);
+        });
+        let filter = new PIXI.filters.ColorMatrixFilter();
+        filter.brightness(2);
+        filter.blendMode = BLEND_MODES.ADD;
+        this.bulletLayers[Danmaku.laserLayer].filters = [filter];
     }
 
     set(id) {
@@ -528,6 +696,19 @@ class Danmaku extends Container {
         });
         this.lasers.forEach(la => {
             la.visible = false;
+            la.source.visible = false;
+        });
+    }
+
+    hide() {
+        this.bulletLayers.forEach(layer => {
+            layer.visible = false;
+        });
+    }
+
+    show() {
+        this.bulletLayers.forEach(layer => {
+            layer.visible = true;
         });
     }
 
@@ -541,10 +722,13 @@ class Danmaku extends Container {
             return null;
         }
         for (let b of this.bullets) {
-            if (b.visible === false) {
+            if (!b.visible) {
                 b.visible = true;
-                b.rotate = 0;
+                b.rotate = false;
                 b.effect = 0;
+                b.speed = 0;
+                b.state = 0;
+                b.angle = 0;
                 b.type = type;
                 b.color = color;
                 b.count = 0;
@@ -562,8 +746,18 @@ class Danmaku extends Container {
             return null;
         }
         for (let la of this.lasers) {
-            if (la.visible === false) {
+            if (!la.visible) {
                 la.visible = true;
+                la.hasSource = true;
+                la.isInLaunch = false;
+                la.count = 0;
+                la.speed = 0;
+                la.angle = 0;
+                la.color = color;
+                la.length = 0;
+                la.thickness = 0;
+                la.maxLength = 0;
+                la.physic.on = false;
                 return la;
             }
         }
@@ -591,11 +785,11 @@ class Danmaku extends Container {
             count = NaN;
         }
         sum = 0;
-        this.pattern.shot(count);
-        this.bullets.forEach(b => {
+        this.pattern.action(count);
+        this.handleBullets(b => {
             b.update();
         });
-        this.lasers.forEach(la => {
+        this.handleLasers(la => {
             la.update();
         });
         if (count % 23 === 0) {
@@ -618,14 +812,14 @@ class Danmaku extends Container {
         Danmaku.patterns = patterns;
     }
 
-    static createPattern(titleOrFunc, shotFunc) {
+    static createPattern(titleOrFunc, actionFunc) {
         let obj = {
             title: titleOrFunc,
-            shot: shotFunc
+            action: actionFunc
         };
         if (arguments.length === 1 && typeof titleOrFunc === "function") {
             obj.title = null;
-            obj.shot = titleOrFunc;
+            obj.action = titleOrFunc;
             return obj;
         } else if (arguments.length === 2 && typeof titleOrFunc === "string") {
             return obj;
@@ -770,11 +964,12 @@ class Game {
 
     start() {
         this.stop();
-        this.player.visible = true;
+        this.player.show();
         this.player.playAnimation(this.player.states.normal);
-        this.boss.visible = true;
+        this.boss.show();
         this.boss.putPhysic(FMX / 2, FMY / 4, 50);
         this.boss.playAnimation();
+        this.danmaku.show();
         this.requestNextMainLoop();
     }
 
@@ -841,7 +1036,7 @@ window.onload = () => {
             "\tlet b = getBullet(0, 0);\n" +
             "\tif (b != null) {\n" +
             "\t\tb.speed = 3;\n" +
-            "\t\tb.angle = bossAtan2pl();\n" +
+            "\t\tb.angle = boss.angleTo(player);\n" +
             "\t\tb.x = boss.x;\n" +
             "\t\tb.y = boss.y;\n" +
             "\t}\n" +
@@ -856,40 +1051,6 @@ function addButtonListener(game) {
     let gameDiv = document.getElementById("game");
     gameDiv.onkeydown = game.input.handle("down");
     gameDiv.onkeyup = game.input.handle("up");
-
-    document.getElementById("start").onclick = () => {
-        let str = editor.getLine(0);
-        let danmakuTitle = str[0] === '"' ? str : "";
-        let danmakuFunc = editor.getRange({
-            line: danmakuTitle === "" ? 0 : 1,
-            ch: 0
-        }, {
-            line: editor.lineCount(),
-            ch: 0
-        });
-        // let story_str;
-        // if (selected_danmaku < 0) {
-        //     story_str = "story=[add_danmaku(60,shot_bullet.length-1,0,0)];";
-        // } else {
-        //     story_str = "story=[add_danmaku(60,selected_danmaku,0,0)];";
-        // }
-        // str = "shot_bullet[shot_bullet.length-1]=create_danmaku(" +
-        //     danmaku_title + (danmaku_title === "" ? "" : ",") +
-        //     danmaku_func + ");" + story_str;
-        // eval(str);
-        gameDiv.focus();
-        game.start();
-    };
-    document.getElementById("stop").onclick = () => {
-        game.stop();
-    }
-    document.getElementById("pause").onclick = () => {
-        game.pause();
-    };
-    document.getElementById("continue").onclick = () => {
-        gameDiv.focus();
-        game.continue();
-    };
 
     let select = document.getElementById("select-danmaku");
     let option = document.createElement("option");
@@ -908,6 +1069,39 @@ function addButtonListener(game) {
     }
     select.onchange = () => {
         game.stop();
-        game.setDanmaku(select.value);
     }
+
+    document.getElementById("start").onclick = () => {
+        let str = editor.getLine(0);
+        let danmakuTitle = str[0] === '"' ? str : "";
+        let danmakuFuncStr = editor.getRange({
+            line: danmakuTitle === "" ? 0 : 1,
+            ch: 0
+        }, {
+            line: editor.lineCount(),
+            ch: 0
+        });
+        let story_str;
+        if (select.value < 0) {
+            let danmaku = danmakuPatterns[danmakuPatterns.length - 1];
+            danmaku.title = danmakuTitle;
+            str = "danmaku.action=function(t){" + danmakuFuncStr + "}";
+            eval(str);
+            game.setDanmaku(danmakuPatterns.length - 1);
+        } else {
+            game.setDanmaku(select.value);
+        }
+        gameDiv.focus();
+        game.start();
+    };
+    document.getElementById("stop").onclick = () => {
+        game.stop();
+    }
+    document.getElementById("pause").onclick = () => {
+        game.pause();
+    };
+    document.getElementById("continue").onclick = () => {
+        gameDiv.focus();
+        game.continue();
+    };
 }

@@ -326,7 +326,12 @@ class Boss extends GameObject {
             this.addChild(anime);
             Boss.chars[id] = anime;
         }
+        if (this.animation !== null) {
+            this.animation.stop();
+            this.animation.visible = false;
+        }
         this.animation = Boss.chars[id];
+        this.playAnimation();
     }
 
     hide() {
@@ -338,10 +343,6 @@ class Boss extends GameObject {
     }
 
     playAnimation() {
-        if (this.animation !== null) {
-            this.animation.stop();
-            this.animation.visible = false;
-        }
         this.animation.visible = true;
         this.animation.gotoAndPlay(0);
     }
@@ -928,18 +929,21 @@ class Game {
 
     init() {
         let donefunc = null;
+        let pathArray = [
+            "data/img/bullet/bullet.json",
+            "data/img/bullet/laser.png",
+        ];
+        for (let i = 0; i < playerNum; i++) {
+            pathArray.push("data/img/player/pl" + i + ".png");
+        }
+        for (let i = 0; i < bossNum; i++) {
+            pathArray.push("data/img/boss/boss" + i + ".png");
+        }
         loader
-            .add([
-                "data/img/bullet/bullet.json",
-                "data/img/bullet/laser.png",
-                "data/img/player/pl0.png",
-                "data/img/boss/boss4.png"
-            ])
+            .add(pathArray)
             .load(() => {
-                Bullet.setTextures("data/img/bullet/bullet.json");
-                Laser.setTextures("data/img/bullet/laser.png");
-                this.setPlayer(0);
-                this.setBoss(4);
+                Bullet.setTextures(pathArray[0]);
+                Laser.setTextures(pathArray[1]);
                 donefunc();
             });
 
@@ -1052,11 +1056,12 @@ function addButtonListener(game) {
     gameDiv.onkeydown = game.input.handle("down");
     gameDiv.onkeyup = game.input.handle("up");
 
-    let select = document.getElementById("select-danmaku");
+    // Select danmaku.
+    let seld = document.getElementById("select-danmaku");
     let option = document.createElement("option");
     option.value = -1;
     option.innerHTML = "From editor...";
-    select.appendChild(option);
+    seld.appendChild(option);
     for (let i = 0; i < Danmaku.patterns.length - 1; i++) {
         let option = document.createElement("option");
         option.value = i;
@@ -1065,11 +1070,38 @@ function addButtonListener(game) {
         } else {
             option.innerHTML = i;
         }
-        select.appendChild(option);
+        seld.appendChild(option);
     }
-    select.onchange = () => {
+    seld.onchange = () => {
         game.stop();
     }
+    seld.onchange();
+
+    // Select player.
+    let selp = document.getElementById("select-player");
+    for (let i = 0; i < playerNum; i++) {
+        let option = document.createElement("option");
+        option.value = i;
+        option.innerHTML = i;
+        selp.appendChild(option);
+    }
+    selp.onchange = () => {
+        game.setPlayer(selp.value);
+    }
+    selp.onchange();
+
+    // Select boss.
+    let selb = document.getElementById("select-boss");
+    for (let i = 0; i < bossNum; i++) {
+        let option = document.createElement("option");
+        option.value = i;
+        option.innerHTML = i;
+        selb.appendChild(option);
+    }
+    selb.onchange = () => {
+        game.setBoss(selb.value);
+    }
+    selb.onchange();
 
     document.getElementById("start").onclick = () => {
         let str = editor.getLine(0);
@@ -1082,14 +1114,14 @@ function addButtonListener(game) {
             ch: 0
         });
         let story_str;
-        if (select.value < 0) {
+        if (seld.value < 0) {
             let danmaku = danmakuPatterns[danmakuPatterns.length - 1];
             danmaku.title = danmakuTitle;
             str = "danmaku.action=function(t){" + danmakuFuncStr + "}";
             eval(str);
             game.setDanmaku(danmakuPatterns.length - 1);
         } else {
-            game.setDanmaku(select.value);
+            game.setDanmaku(seld.value);
         }
         gameDiv.focus();
         game.start();

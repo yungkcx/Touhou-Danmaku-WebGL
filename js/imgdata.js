@@ -1,4 +1,4 @@
-let bulletNums = [
+const bulletNums = [
     16,
     16,
     16,
@@ -34,5 +34,7 @@ let bulletNums = [
     16,
     10
 ];
-let laserNum = 16;
-let laserSourceId = 12;
+const laserNum = 16;
+const laserSourceId = 12;
+const playerNum = 35;
+const bossNum = 10;

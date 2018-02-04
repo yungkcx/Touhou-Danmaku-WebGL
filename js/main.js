@@ -321,7 +321,13 @@ class Boss extends GameObject {
                 console.error("Error: Invalid Boss id");
                 return;
             }
-            let anime = GameUtil.createAnimation(url, 4, 0, 0, 64, 64);
+            let n = 4,
+                w = 64,
+                h = 64;
+            if (id === 10) { // Daiyousei.
+                n = 3, w = 80, h = 80;
+            }
+            let anime = GameUtil.createAnimation(url, n, 0, 0, w, h);
             anime.animationSpeed = 1 / 6;
             this.addChild(anime);
             Boss.chars[id] = anime;
@@ -406,7 +412,7 @@ class Bullet extends GameObject {
     constructor() {
         super();
         this.count = 0;
-        this.state = 0;
+        this.state = undefined;
         this.baseAngle = [0, 0, 0, 0, 0];
         this.typev = 0;
         this.colorv = 0;
@@ -728,7 +734,7 @@ class Danmaku extends Container {
                 b.rotate = false;
                 b.effect = 0;
                 b.speed = 0;
-                b.state = 0;
+                b.state = undefined;
                 b.angle = 0;
                 b.type = type;
                 b.color = color;
@@ -1086,7 +1092,7 @@ function addButtonListener(game) {
         selp.appendChild(option);
     }
     selp.onchange = () => {
-        game.setPlayer(selp.value);
+        game.setPlayer(Number(selp.value));
     }
     selp.onchange();
 
@@ -1099,7 +1105,7 @@ function addButtonListener(game) {
         selb.appendChild(option);
     }
     selb.onchange = () => {
-        game.setBoss(selb.value);
+        game.setBoss(Number(selb.value));
     }
     selb.onchange();
 
@@ -1119,9 +1125,9 @@ function addButtonListener(game) {
             danmaku.title = danmakuTitle;
             str = "danmaku.action=function(t){" + danmakuFuncStr + "}";
             eval(str);
-            game.setDanmaku(danmakuPatterns.length - 1);
+            game.setDanmaku(Number(danmakuPatterns.length - 1));
         } else {
-            game.setDanmaku(seld.value);
+            game.setDanmaku(Number(seld.value));
         }
         gameDiv.focus();
         game.start();

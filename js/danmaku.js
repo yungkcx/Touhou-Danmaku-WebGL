@@ -8,8 +8,6 @@ let getBullet = game.danmaku.getBullet.bind(game.danmaku),
     randArray = GameUtil.randArray,
     handleBullets = game.danmaku.handleBullets.bind(game.danmaku),
     handleLasers = game.danmaku.handleLasers.bind(game.danmaku),
-    putBossPhy = boss.putPhysic.bind(boss),
-    randMoveBoss = boss.randMove.bind(boss),
     baseAngle = [];
 
 let danmakuPatterns = [
@@ -93,7 +91,7 @@ let danmakuPatterns = [
     createDanmaku("弹量测试", function f005(t) {
         const NBULLET = 324;
         if (t == 0) {
-            putBossPhy(FMX / 2, FMY / 2, 50);
+            boss.putPhysic(FMX / 2, FMY / 2, 50);
         }
         if (t % 10 == 0 && t >= 50) {
             let angle = boss.angleTo(player);
@@ -120,7 +118,7 @@ let danmakuPatterns = [
         if (t2 == 0) {
             baseAngle[0] = boss.angleTo(player);
             if (this.cnum % 2 == 0) {
-                randMoveBoss(40, 30, FMX - 40, 120, 60, 60);
+                boss.randMove(40, 30, FMX - 40, 120, 60, 60);
             }
         }
         if (t2 == TM1 / 2 - 1) {
@@ -156,7 +154,7 @@ let danmakuPatterns = [
         let t2 = t % TM1;
 
         if (t2 == 0 || t2 == 210) {
-            randMoveBoss(50, 65, FMX - 50, 170, 120, 80);
+            boss.randMove(50, 65, FMX - 50, 170, 120, 80);
         }
         if (t2 < 140) {
             for (let i = 0; i < 4; i++) {
@@ -215,7 +213,7 @@ let danmakuPatterns = [
         let coef = this.cnum % 2 ? -1 : 1;
 
         if (t == 0) {
-            putBossPhy(FMX / 2, FMY / 2, 50);
+            boss.putPhysic(FMX / 2, FMY / 2, 50);
             this.cnum = 0;
         }
         if (t2 == 0) {
@@ -543,7 +541,7 @@ let danmakuPatterns = [
             this.num = (this.num + 1) % NSTATE;
         }
     }),
-    createDanmaku("梦符「梦我梦中」", function f(t) {
+    createDanmaku("梦符「梦我梦中」", function f012(t) {
         const TM = 800;
         const DIST = 70;
         const NLASER = 48;
@@ -627,6 +625,81 @@ let danmakuPatterns = [
                 }
             }
         });
+    }),
+    createDanmaku("「妖精旋风」", function f013(t) {
+        const TM = 1900;
+        const TM1 = 900;
+        let t2 = t % TM;
+        this.num = this.num || 0;
+        this.coef = this.coef || false;
+        if (t2 == 0) {
+            boss.putPhysic(FMX / 2, FMY * 2 / 5, 10);
+            this.num = 0;
+            this.coef = false;
+            baseAngle[0] = 0.04;
+        }
+        if ((10 <= t2 && t2 < TM1) && t % 10 == 0) {
+            for (let i = 0; i < 6; i++) {
+                let b = getBullet(0, this.coef % 2 ? 9 : 0);
+                if (b != null) {
+                    b.speed = 4;
+                    b.angle = PI2 / 6 * i + baseAngle * this.num;
+                    b.x = boss.x;
+                    b.y = boss.y;
+                    b.state = 0;
+                }
+                this.num++;
+            }
+            this.coef = !this.coef;
+        } else if (t2 == TM1) {
+            boss.putPhysic(FMX / 2, FMY / 4, 10);
+        }
+        if ((TM1 * 3 / 4 <= t2 && t2 < TM1 * 5 / 4) && t % 20 == 0) {
+            for (let i = 0; i < 12; i++) {
+                let b = getBullet(34, 0);
+                if (b != null) {
+                    b.speed = 3;
+                    b.angle = boss.angleTo(player) + PI2 / 12 * i;
+                    b.x = boss.x;
+                    b.y = boss.y;
+                }
+            }
+        }
+        if (TM1 * 5 / 4 <= t2 && t2 < TM1 * 2) {
+            if (t2 % 50 == 0) {
+                let x = 40 + randInt(FMX - 40),
+                    y = 40 + randInt(FMY / 2 - 40);
+                boss.putPhysic(x, y, 10);
+                for (let i = 0; i < 12; i++) {
+                    let b = getBullet(16, 5);
+                    if (b != null) {
+                        b.speed = 3;
+                        b.x = boss.x;
+                        b.y = boss.y;
+                        b.angle = boss.angleTo(player) + PI2 / 12 * i;
+                    }
+                }
+            }
+            if (t2 % 20 == 0) {
+                for (let i = 0; i < 20; i++) {
+                    let b = getBullet(4, this.coef ? 9 : 0);
+                    if (b != null) {
+                        b.speed = 3;
+                        b.x = boss.x;
+                        b.y = boss.y;
+                        b.angle = boss.angleTo(player) + range(PI / 4);
+                    }
+                }
+                this.coef = !this.coef;
+            }
+        }
+        if (Math.floor(t2 / (TM1 / 9)) % 3 == 0 && t2 < TM1) {
+            handleBullets(b => {
+                if (b.state == 0) {
+                    b.angle += baseAngle[0];
+                }
+            });
+        }
     }),
     createDanmaku("nothing", t => {}),
 ];

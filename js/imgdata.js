@@ -32,9 +32,10 @@ const bulletNums = [
     16,
     16,
     16,
-    10
+    10,
+    2
 ];
 const laserNum = 16;
 const laserSourceId = 12;
 const playerNum = 35;
-const bossNum = 10;
+const bossNum = 11;

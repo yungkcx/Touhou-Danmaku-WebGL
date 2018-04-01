@@ -38,4 +38,4 @@ const bulletNums = [
 const laserNum = 16;
 const laserSourceId = 12;
 const playerNum = 35;
-const bossNum = 11;
+const bossNum = 12;

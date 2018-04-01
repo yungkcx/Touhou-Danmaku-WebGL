@@ -326,6 +326,8 @@ class Boss extends GameObject {
                 h = 64;
             if (id === 10) { // Daiyousei.
                 n = 3, w = 80, h = 80;
+            } else if (id == 11) { // Cirno
+                n = 4, w = 64, h = 80;
             }
             let anime = GameUtil.createAnimation(url, n, 0, 0, w, h);
             anime.animationSpeed = 1 / 6;
